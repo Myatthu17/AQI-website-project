@@ -70,7 +70,7 @@ function fetchAQIData() {
     const lat = 35;
     const lon = 129;
     const ApiKey = '13bbaefcefef424a8a72452075e5e234';
-    const AQIapiUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${ApiKey}`;
+    const AQIapiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${ApiKey}`;
 
     fetch(AQIapiUrl)
         .then(response => {
