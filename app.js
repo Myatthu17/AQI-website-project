@@ -32,34 +32,44 @@ $(document).ready(function() {
 
 
 
-// updateHomeTab
+// Update the home tab with AQI data
 async function updateHomeTab() {
-    const ApiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
-    const AQIapiUrl = `https://api.waqi.info/feed/here/?token=${ApiKey}`;
+    const jsonData = await fetchWAQIData('here'); // Await the async function
 
-    try {
-        const response = await fetch(AQIapiUrl); // Await the fetch response
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const jsonData = await response.json(); // Await the parsing of JSON response
-
+    // Check if jsonData was successfully retrieved before updating the UI
+    if (jsonData && jsonData.data) {
         // Handle the data from the API
         updateAQIDisplay(jsonData.data);
         updateSummaryPollutantChart(jsonData.data.iaqi);
         updatepm10LineChart(jsonData.data.forecast.daily.pm10);
+    } else {
+        console.error("No data available to update the home tab.");
+    }
+}
+
+// WAQI API call function
+async function fetchWAQIData(place) {
+    const apiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
+    const AQIapiUrl = `https://api.waqi.info/feed/${place}/?token=${apiKey}`;
+
+    try {
+        const response = await fetch(AQIapiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+        return jsonData;
     } catch (error) {
         console.error("Error fetching AQI data:", error);
     }
 }
 
-// Open Weather API call function
-async function fetchOpenWeatherAQIData() {
-    const lat = 35.1795543
-    const lon = 129.0756416
+
+// Open Weather Current AQI API call function
+async function fetchOpenWeatherAQIData(lat, lon) {
     const apiKey = `13bbaefcefef424a8a72452075e5e234`
-    const apiUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+    const apiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
 
     try {
         const response = await fetch(apiUrl);
@@ -69,6 +79,7 @@ async function fetchOpenWeatherAQIData() {
 
         const jsonData = await response.json();
 
+        return jsonData;
 
     } catch(error) {
         console.error("Error fetching AQI data:", error);
