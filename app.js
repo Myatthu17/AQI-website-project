@@ -64,7 +64,6 @@ function updateSummaryPollutantChart(components) {
         data: {
             labels: ['CO', 'NO₂', 'O₃', 'PM₁₀', 'PM₂.₅', 'SO₂'],
             datasets: [{
-                label: "Concentration (µg/m³)",
                 data: data,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.5)',  // CO
@@ -88,13 +87,26 @@ function updateSummaryPollutantChart(components) {
         options: {
             indexAxis: 'y',
             plugins: {
+                legend: {
+                    display: false
+                },
                 title: {
                     display: true,
-                    text: "Pollutants Concentration"
+                    text: "Pollutant Individual AQI"
                 }
             },
             scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "IAQI"
+                    }
+                },
                 y: {
+                    title: {
+                        display: true,
+                        text: 'Pollutants'
+                    },
                     beginAtZero: true
                 }
             }
@@ -103,16 +115,16 @@ function updateSummaryPollutantChart(components) {
 }
 
 function updatepm10LineChart(data) {
-    const dataLabels = data.map(item => item.day);
+    const dateLabels = data.map(item => item.day);
     const average = data.map(item => item.avg);
     
     const ctx = $('#pm10LineChart');
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: dataLabels,
+            labels: dateLabels,
             datasets: [{
-                label: 'PM10 Levels',
+                label: 'PM10 IAQI',
                 data: average,
                 borderColor: 'rgba(255, 99, 132, 1)',  // Line color
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Fill under the line
@@ -125,30 +137,25 @@ function updatepm10LineChart(data) {
         options: {
             responsive: true,
             plugins: {
-                legend: {
+                title: {
                     display: true,
-                    position: 'top'
+                    text: "PM10 IAQI"
                 },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return `PM10: ${context.raw} µg/m³`;
-                        }
-                    }
+                legend: {
+                    display: false,
                 }
             },
             scales: {
                 x: {
                     title: {
                         display: true,
-                        text: 'Day'
+                        text: 'Date'
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'PM10 Concentration (µg/m³)'
+                        text: 'PM10 IAQI'
                     }
                 }
             }
