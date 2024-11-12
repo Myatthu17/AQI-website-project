@@ -20,57 +20,13 @@ $(document).ready(function() {
 
 });
 
-// Function to get the AQI status and return the corresponding Bootstrap class and text
-function getAQIClass(aqi) {
-    let aqiClass = "";
-    let aqiText = "";
 
-    switch (aqi) {
-        case 1:
-            aqiClass = "text-success"; // Green (Good)
-            aqiTitle = "Air quality is Good";
-            aqiText = "Air quality is considered satisfactory, and air pollution poses little or no risk.";
-            break;
-        case 2:
-            aqiClass = "text-info"; // Yellow (Fair)
-            aqiTitle = "Air quality is Fair";
-            aqiText = `Air quality is acceptable; however, there may be a 
-                       moderate health concern for a very small number of people who are unusually sensitive to air pollution.`
-            break;
-        case 3:
-            aqiClass = "text-warning"; // Light blue (Moderate)
-            aqiTitle = "Air quality is Moderate";
-            aqiText = `Air quality is acceptable; however, some pollutants may 
-                       pose a moderate health risk for some people, particularly those who are sensitive to air pollution.`
-            break;
-        case 4:
-            aqiClass = "text-danger"; // Red (Poor)
-            aqiTitle = "Air quality is Poor";
-            aqiText = `Air quality is unhealthy for sensitive groups, including
-                     people with respiratory or heart conditions. Members of sensitive groups may experience health effects.`
-            break;
-        case 5:
-            aqiClass = "text-darkred"; // Dark (Very Poor)
-            aqiTitle = "Air quality is Very Poor";
-            aqiText = `Air quality is hazardous. Everyone may begin to experience 
-                        health effects, and members of sensitive groups may experience more serious health effects.`
-            break;
-        default:
-            aqiClass = "text-secondary"; // Grey for invalid or undefined AQI
-            aqiTitle = "Invalid AQI value";
-            break;
-    }
-
-    return { aqiClass, aqiTitle, aqiText };
-}
 
 // API call function
 function fetchAQIData() {
 
-    const lat = 35;
-    const lon = 129;
-    const ApiKey = '13bbaefcefef424a8a72452075e5e234';
-    const AQIapiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${ApiKey}`;
+    const ApiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
+    const AQIapiUrl = `https://api.waqi.info/feed/here/?token=${ApiKey}`;
 
     fetch(AQIapiUrl)
         .then(response => {
@@ -79,10 +35,11 @@ function fetchAQIData() {
             }
             return response.json(); // Parse JSON response
         })
-        .then(data => {
+        .then(jsonData => {
             // Handle the data from the API
-            updateAQIDisplay(data.list[0].main.aqi);
-            updateSummaryPollutantChart(data.list[0].components);
+            updateAQIDisplay(jsonData.data);
+            updateSummaryPollutantChart(jsonData.data.iaqi);
+            updatepm10LineChart(jsonData.data.forecast.daily.pm10);
         })
         .catch(error => {
             console.error("Error fetching AQI data:", error);
@@ -90,31 +47,41 @@ function fetchAQIData() {
 }
 
 // Function to update the UI with the API data
-function updateAQIDisplay(aqi) {
-    let result = getAQIClass(aqi);
+function updateAQIDisplay(data) {
+    let result = getAQIClass(data.aqi);
 
+    $('span.current-city').text(data.city.name);
     $('.AQI-color').addClass(result.aqiClass);
     $('.AQI-color').text(result.aqiTitle);
     $('.AQI-color').next("span").text(result.aqiText);
 }
 
-let chartInstance = null;  // Declare chartInstance globally
-
 function updateSummaryPollutantChart(components) {
-    let data = Object.values(components);
-    // Destroy the previous chart instance if it exists
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
+    let data = Object.values(components).map(p => p.v);
 
-    // Create a new chart
     chartInstance = new Chart($('#summaryPollutantChart'), {
         type: 'bar',
         data: {
-            labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
+            labels: ['CO', 'NO₂', 'O₃', 'PM₁₀', 'PM₂.₅', 'SO₂'],
             datasets: [{
                 label: "Concentration (µg/m³)",
                 data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',  // CO
+                    'rgba(54, 162, 235, 0.5)',  // NO2
+                    'rgba(75, 192, 192, 0.5)',  // O3
+                    'rgba(153, 102, 255, 0.5)', // PM10
+                    'rgba(255, 159, 64, 0.5)',  // PM2.5
+                    'rgba(255, 206, 86, 0.5)'   // SO2
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
                 borderWidth: 1
             }]
         },
@@ -133,4 +100,95 @@ function updateSummaryPollutantChart(components) {
             }
         }
     });
+}
+
+function updatepm10LineChart(data) {
+    const dataLabels = data.map(item => item.day);
+    const average = data.map(item => item.avg);
+    
+    const ctx = $('#pm10LineChart');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataLabels,
+            datasets: [{
+                label: 'PM10 Levels',
+                data: average,
+                borderColor: 'rgba(255, 99, 132, 1)',  // Line color
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Fill under the line
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',  // Point color
+                pointRadius: 4,
+                tension: 0.4  // Curve the line slightly for smoother visuals
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            return `PM10: ${context.raw} µg/m³`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Day'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'PM10 Concentration (µg/m³)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+// Function to get the AQI status and return the corresponding Bootstrap class and text
+function getAQIClass(aqi) {
+    let aqiClass = "";
+    let aqiText = "";
+    let aqiTitle = "";
+
+    if (aqi < 51) {
+        aqiClass = "text-success";
+        aqiText = "Air quality is considered satisfactory, and air pollution poses little or no risk.";
+        aqiTitle = "Air quality is Good";
+    } else if (aqi < 101) {
+        aqiClass = "text-warning";
+        aqiText = `Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very 
+                    small number of people who are unusually sensitive to air pollution.`;
+        aqiTitle = "Air quality is Moderate";
+    } else if (aqi < 151) {
+        aqiClass = "text-orange";
+        aqiText = `Members of sensitive groups may experience health effects. The general public is not likely to be affected.`;
+        aqiTitle = "Air quality is Unhealthy for Sensitive Groups";
+    } else if (aqi < 201) {
+        aqiClass = "text-danger";
+        aqiText = `Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects`;
+        aqiTitle = "Air quality is Unhealthy";
+    } else if (aqi < 301) {
+        aqiClass = "text-purple";
+        aqiText = `Health warnings of emergency conditions. The entire population is more likely to be affected.`;
+        aqiTitle = "Air quality is Very Unhealthy";
+    } else {
+        aqiClass = "text-darkred";
+        aqiText = `Health alert: everyone may experience more serious health effects.`;
+        aqiTitle = "Air quality is Hazardous";
+    }
+
+    return {aqiClass, aqiText, aqiTitle};
 }

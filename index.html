@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="row flex-column flex-lg-row">
-                        <h2 class="h6 text-white-50">Current Air Quality in Busan</h2>
+                        <h2 class="h6 text-white-50">Current Air Quality in Current Location (<span class="current-city"></span>)</h2>
                         <div class="col">
                             <div class="card mb-3">
                                 <div class="card-body">
@@ -74,10 +74,19 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row flex-column flex-lg-row">
                         <div class="col">
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <canvas id="summaryPollutantChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <canvas id="pm10LineChart"></canvas>
                                 </div>
                             </div>
                         </div>
