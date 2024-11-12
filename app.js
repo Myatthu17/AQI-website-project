@@ -23,28 +23,27 @@ $(document).ready(function() {
 
 
 // API call function
-function fetchAQIData() {
-
+async function fetchAQIData() {
     const ApiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
     const AQIapiUrl = `https://api.waqi.info/feed/here/?token=${ApiKey}`;
 
-    fetch(AQIapiUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json(); // Parse JSON response
-        })
-        .then(jsonData => {
-            // Handle the data from the API
-            updateAQIDisplay(jsonData.data);
-            updateSummaryPollutantChart(jsonData.data.iaqi);
-            updatepm10LineChart(jsonData.data.forecast.daily.pm10);
-        })
-        .catch(error => {
-            console.error("Error fetching AQI data:", error);
-        });
+    try {
+        const response = await fetch(AQIapiUrl); // Await the fetch response
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json(); // Await the parsing of JSON response
+
+        // Handle the data from the API
+        updateAQIDisplay(jsonData.data);
+        updateSummaryPollutantChart(jsonData.data.iaqi);
+        updatepm10LineChart(jsonData.data.forecast.daily.pm10);
+    } catch (error) {
+        console.error("Error fetching AQI data:", error);
+    }
 }
+
 
 // Function to update the UI with the API data
 function updateAQIDisplay(data) {

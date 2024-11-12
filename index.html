@@ -25,28 +25,33 @@
                         <small>CONTROLS</small>
                     </span>
                     <a href="#" class="menu-item list-group-item list-group-item-action active" data-target="#home-content">
-                        <i class="fa-solid fa-home"></i>
+                        <i class="fa-solid fa-home icon-width"></i>
                         <span class="d-none d-lg-inline">Home</span>
                     </a>
-                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#dashboard-content">
-                        <i class="fa-solid fa-chart-simple"></i>
-                        <span class="d-none d-lg-inline">Main Dashboard</span>
-                    </a>
-                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#alerts-content">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="d-none d-lg-inline">Alerts</span>
+                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#live-content">
+                        <i class="fa-solid fa-gauge-high icon-width"></i>
+                        <span class="d-none d-lg-inline">Live AQI</span>
                     </a>
                     <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#history-content">
-                        <i class="fa-solid fa-calendar"></i>
-                        <span class="d-none d-lg-inline">Historical Data</span>
+                        <i class="fa-solid fa-calendar icon-width"></i>
+                        <span class="d-none d-lg-inline">Past AQI</span>
                     </a>
-                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#location-content">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span class="d-none d-lg-inline">Location-Based Data</span>
+                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#forecast-content">
+                        <i class="fa-solid fa-chart-line icon-width"></i>
+                        <span class="d-none d-lg-inline">AQI Forecast</span>
+                    </a>
+                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#compare-location-content">
+                        <i class="fa-solid fa-scale-balanced icon-width"></i>
+                        <span class="d-none d-lg-inline">AQI Comparison</span>
+                    </a>
+                    <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#aqi-weather-content">
+                        <i class="fa-solid fa-temperature-half icon-width"></i>
+                        <span class="d-none d-lg-inline">AQI & Weather Trends</span>
                     </a>
                 </div>
             </nav>
             <main class="col-10 bg-secondary p-3">
+                <!-- Home tab  -->
                 <div id="home-content" class="content-section">
                     <div class="flex-column">
                         <div class="card mb-3">
@@ -92,22 +97,57 @@
                         </div>
                     </div>
                 </div>
-                <div id="dashboard-content" class="content-section d-none">
-                    <h2>Main Dashboard</h2>
-                    <p>Here’s the main dashboard content.</p>
+
+                <!-- Live AQI tab  -->
+                <div id="live-content" class="content-section d-none">
+                    <div class="flex-col flex-lg-row">
+                        <div class="mb-3 col-3">
+                            <select class="form-select mb-3" aria-label="Country">
+                                <option selected>Select a country</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                            <select class="form-select mb-3" aria-label="City" disabled>
+                                <option selected>Select a city</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 col">
+                            <div class="card">
+                                <div class="card-body">
+                                    <canvas id=""></canvas>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-                <div id="alerts-content" class="content-section d-none">
-                    <h2>Alerts</h2>
-                    <p>This is the alerts section.</p>
-                </div>
+
+                <!-- AQI History tab  -->
                 <div id="history-content" class="content-section d-none">
-                    <h2>Historical Data</h2>
-                    <p>Historical air quality data goes here.</p>
                 </div>
-                <div id="location-content" class="content-section d-none">
-                    <h2>Location-Based Data</h2>
-                    <p>Location-based air quality data.</p>
+
+                <!-- Forecast tab  -->
+                <div id="forecast-content" class="content-section d-none">
+
                 </div>
+
+                <!-- Compare Location tab  -->
+                <div id="compare-location-content" class="content-section d-none">
+                </div>
+
+
+                <!--  AQI & Weather TrendTab -->
+                <div id="aqi-weather-content" class="content-section d-none">
+                    
+                </div>
+
+
+
             </main>
         </div>
     </div>
