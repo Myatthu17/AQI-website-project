@@ -16,14 +16,24 @@ $(document).ready(function() {
     });
 
     // Call the API function within the document ready function
-    fetchAQIData();
+    updateHomeTab();
+
+    // Function to enable city-select based on country-select
+    $('#country-select').change(function() {
+        // Check if a valid country is selected (not the first default option)
+        if ($(this).prop('selectedIndex') > 0) {
+            $('#city-select').prop('disabled', false); // Enable the city dropdown
+        } else {
+            $('#city-select').prop('disabled', true); // Disable the city dropdown
+        }
+    });
 
 });
 
 
 
-// API call function
-async function fetchAQIData() {
+// updateHomeTab
+async function updateHomeTab() {
     const ApiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
     const AQIapiUrl = `https://api.waqi.info/feed/here/?token=${ApiKey}`;
 
@@ -40,6 +50,27 @@ async function fetchAQIData() {
         updateSummaryPollutantChart(jsonData.data.iaqi);
         updatepm10LineChart(jsonData.data.forecast.daily.pm10);
     } catch (error) {
+        console.error("Error fetching AQI data:", error);
+    }
+}
+
+// Open Weather API call function
+async function fetchOpenWeatherAQIData() {
+    const lat = 35.1795543
+    const lon = 129.0756416
+    const apiKey = `13bbaefcefef424a8a72452075e5e234`
+    const apiUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+
+    try {
+        const response = await fetch(apiUrl);
+        if(!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+
+
+    } catch(error) {
         console.error("Error fetching AQI data:", error);
     }
 }
@@ -162,7 +193,6 @@ function updatepm10LineChart(data) {
     });
 }
 
-
 // Function to get the AQI status and return the corresponding Bootstrap class and text
 function getAQIClass(aqi) {
     let aqiClass = "";
@@ -198,3 +228,4 @@ function getAQIClass(aqi) {
 
     return {aqiClass, aqiText, aqiTitle};
 }
+
