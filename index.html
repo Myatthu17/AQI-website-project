@@ -120,16 +120,27 @@
                                 <option value="3">Three</option>
                             </select>
                     
-                            <button type="button" class="btn btn-primary">Search</button>
+                            <button type="button" class="btn btn-primary" id="live-search">Search</button>
+                        </div>
+                    </div>
+
+
+                    <h3 class="h5 text-white-50">Current Air Quality</h3>
+                    <div class="col-2">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3 class="card-title" id="live-aqi-colour"></h3>
+                                <span></span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="flex-column flex-lg-row">
+                        
                         <div class="col">
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h3 class="card-title AQI-color"></h3>
-                                    <span></span>
+                                    <canvas id="pollutantLiveChart"></canvas>
                                 </div>
                             </div>
                         </div>

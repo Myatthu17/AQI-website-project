@@ -47,52 +47,11 @@ async function updateHomeTab() {
     }
 }
 
-// WAQI API call function
-async function fetchWAQIData(place) {
-    const apiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
-    const AQIapiUrl = `https://api.waqi.info/feed/${place}/?token=${apiKey}`;
-
-    try {
-        const response = await fetch(AQIapiUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const jsonData = await response.json();
-        return jsonData;
-    } catch (error) {
-        console.error("Error fetching AQI data:", error);
-    }
-}
-
-
-// Open Weather Current AQI API call function
-async function fetchOpenWeatherAQIData(lat, lon) {
-    const apiKey = `13bbaefcefef424a8a72452075e5e234`
-    const apiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
-
-    try {
-        const response = await fetch(apiUrl);
-        if(!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const jsonData = await response.json();
-
-        return jsonData;
-
-    } catch(error) {
-        console.error("Error fetching AQI data:", error);
-    }
-}
-
-
-// Function to update the UI with the API data
 function updateAQIDisplay(data) {
     let result = getAQIClass(data.aqi);
 
     $('span.current-city').text(data.city.name);
-    $('.AQI-color').addClass(result.aqiClass);
+    $('.AQI-color').addClass("text" + result.aqiClass);
     $('.AQI-color').text(result.aqiTitle);
     $('.AQI-color').next("span").text(result.aqiText);
 }
@@ -204,6 +163,92 @@ function updatepm10LineChart(data) {
     });
 }
 
+// Update the live AQI tab
+
+$('#live-search').on('click', async function() {
+    const cityName = 'Busan';
+    waqiData = await fetchWAQIData(cityName)
+    owData = await fetchOpenWeatherAQIData(35, 129)
+
+    const UiClass = getAQIClass(waqiData.data.aqi);
+    $('#live-aqi-colour').parent().parent().addClass("bg" + UiClass.aqiClass);
+    $('#live-aqi-colour').text(waqiData.data.aqi);
+    $('#live-aqi-colour').next("span").text(UiClass.aqiTitle);
+
+    // Create Bar Chart
+    pollutantData = Object.values(owData.list[0].components)
+    chartInstance = new Chart($('#pollutantLiveChart'), {
+        type: 'bar',
+        data: {
+            labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
+            datasets: [{
+                label: "Concentration (µg/m³)",
+                data: pollutantData,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Pollutants Concentration"
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+})
+
+// API call functions
+
+// WAQI API call function
+async function fetchWAQIData(place) {
+    const apiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
+    const AQIapiUrl = `https://api.waqi.info/feed/${place}/?token=${apiKey}`;
+
+    try {
+        const response = await fetch(AQIapiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error("Error fetching AQI data:", error);
+    }
+}
+
+
+// Open Weather Current AQI API call function
+async function fetchOpenWeatherAQIData(lat, lon) {
+    const apiKey = `13bbaefcefef424a8a72452075e5e234`
+    const apiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+
+    try {
+        const response = await fetch(apiUrl);
+        if(!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+
+        return jsonData;
+
+    } catch(error) {
+        console.error("Error fetching AQI data:", error);
+    }
+}
+
+
+//Helper Function
+
 // Function to get the AQI status and return the corresponding Bootstrap class and text
 function getAQIClass(aqi) {
     let aqiClass = "";
@@ -211,28 +256,28 @@ function getAQIClass(aqi) {
     let aqiTitle = "";
 
     if (aqi < 51) {
-        aqiClass = "text-success";
+        aqiClass = "-success";
         aqiText = "Air quality is considered satisfactory, and air pollution poses little or no risk.";
         aqiTitle = "Air quality is Good";
     } else if (aqi < 101) {
-        aqiClass = "text-warning";
+        aqiClass = "-warning";
         aqiText = `Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very 
                     small number of people who are unusually sensitive to air pollution.`;
         aqiTitle = "Air quality is Moderate";
     } else if (aqi < 151) {
-        aqiClass = "text-orange";
+        aqiClass = "-orange";
         aqiText = `Members of sensitive groups may experience health effects. The general public is not likely to be affected.`;
         aqiTitle = "Air quality is Unhealthy for Sensitive Groups";
     } else if (aqi < 201) {
-        aqiClass = "text-danger";
+        aqiClass = "-danger";
         aqiText = `Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects`;
         aqiTitle = "Air quality is Unhealthy";
     } else if (aqi < 301) {
-        aqiClass = "text-purple";
+        aqiClass = "-purple";
         aqiText = `Health warnings of emergency conditions. The entire population is more likely to be affected.`;
         aqiTitle = "Air quality is Very Unhealthy";
     } else {
-        aqiClass = "text-darkred";
+        aqiClass = "-darkred";
         aqiText = `Health alert: everyone may experience more serious health effects.`;
         aqiTitle = "Air quality is Hazardous";
     }

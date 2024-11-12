@@ -10,6 +10,18 @@
     color: purple;
 }
 
+.bg-darkred {
+  background-color: darkred;
+}
+
+.bg-orange {
+  background-color: orange;
+}
+
+.bg-purple {
+  background-color: purple;
+}
+
 .icon-width {
   width: 20px;
 }
