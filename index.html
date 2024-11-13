@@ -31,7 +31,7 @@
                     </a>
                     <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#live-content">
                         <i class="fa-solid fa-gauge-high icon-width"></i>
-                        <span class="d-none d-lg-inline">Live AQI</span>
+                        <span class="d-none d-lg-inline">Live Weather</span>
                     </a>
                     <a href="#" class="menu-item list-group-item list-group-item-action" data-target="#history-content">
                         <i class="fa-solid fa-calendar icon-width"></i>
@@ -124,16 +124,50 @@
                         </div>
                     </div>
 
-
-                    <h3 class="h5 text-white-50">Current Air Quality</h3>
-                    <div class="col-2">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h3 class="card-title" id="live-aqi-colour"></h3>
-                                <span></span>
+                    <h3 class="h5 text-white-50">Current Weather</h3>
+                    <div class="d-flex flex-column flex-lg-row gap-3">
+                        
+                        <!-- Live AQI Card -->
+                        <div class="col">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title" id="live-aqi-colour"></h3>
+                                    <span></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        
+                        <!-- Live Temperature Card -->
+                        <div class="col">
+                            <div class="card mb-3 bg-danger-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title" id="live-temperature"></h3>
+                                    <i class="fa-solid fa-temperature-three-quarters"></i><span> Temperature</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Humidity Card -->
+                        <div class="col">
+                            <div class="card mb-3 bg-info-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title" id="live-humidity"></h3>
+                                    <i class="fa-solid fa-droplet"></i><span> Humidity</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Wind Speed Card -->
+                        <div class="col">
+                            <div class="card mb-3 bg-dark-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title" id="live-windspeed"></h3>
+                                    <i class="fa-solid fa-wind"></i><span> Wind Speed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                    
 
                     <div class="flex-column flex-lg-row">
                         

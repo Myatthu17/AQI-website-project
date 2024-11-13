@@ -168,7 +168,8 @@ function updatepm10LineChart(data) {
 $('#live-search').on('click', async function() {
     const cityName = 'Busan';
     waqiData = await fetchWAQIData(cityName)
-    owData = await fetchOpenWeatherAQIData(35, 129)
+    owData = await fetchOpenWeatherAQIData(35, 129, 'air_pollution')
+    weatherData = await fetchOpenWeatherAQIData(35, 129, 'weather')
 
     const UiClass = getAQIClass(waqiData.data.aqi);
     $('#live-aqi-colour').parent().parent().addClass("bg" + UiClass.aqiClass);
@@ -188,7 +189,7 @@ $('#live-search').on('click', async function() {
             }]
         },
         options: {
-            indexAxis: 'y',
+            indexAxis: 'x',
             plugins: {
                 title: {
                     display: true,
@@ -202,6 +203,12 @@ $('#live-search').on('click', async function() {
             }
         }
     });
+
+    const tempC = weatherData.main.temp - 273.15
+
+    $('#live-temperature').text(tempC.toFixed(2) + "  °C")
+    $('#live-humidity').text(weatherData.main.humidity + "  %")
+    $('#live-windspeed').text(weatherData.wind.speed + "  m/s")
 
 })
 
@@ -227,9 +234,9 @@ async function fetchWAQIData(place) {
 
 
 // Open Weather Current AQI API call function
-async function fetchOpenWeatherAQIData(lat, lon) {
+async function fetchOpenWeatherAQIData(lat, lon, dataName) {
     const apiKey = `13bbaefcefef424a8a72452075e5e234`
-    const apiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+    const apiUrl = `https://api.openweathermap.org/data/2.5/${dataName}?lat=${lat}&lon=${lon}&appid=${apiKey}`
 
     try {
         const response = await fetch(apiUrl);
