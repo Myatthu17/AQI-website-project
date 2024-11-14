@@ -17,15 +17,19 @@ $(document).ready(function() {
 
     // Call the API function within the document ready function
     updateHomeTab();
+    fetchCountryData();
 
-    // Function to enable city-select based on country-select
+    // Function to enable state-select based on country-select
     $('#country-select').change(function() {
         // Check if a valid country is selected (not the first default option)
         if ($(this).prop('selectedIndex') > 0) {
-            $('#city-select').prop('disabled', false); // Enable the city dropdown
+            $('#state-select').prop('disabled', false); // Enable the city dropdown
         } else {
-            $('#city-select').prop('disabled', true); // Disable the city dropdown
+            fetchStateData($(this).val())
+            $('#state-select').prop('disabled', true); // Disable the city dropdown
         }
+
+        
     });
 
 });
@@ -253,6 +257,52 @@ async function fetchOpenWeatherAQIData(lat, lon, dataName) {
     }
 }
 
+// Country Code API call function
+async function fetchCountryData() {
+    const headers = new Headers();
+    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+    const requestOptions = {
+        method: 'GET',
+        headers: headers,
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch("https://api.countrystatecity.in/v1/countries", requestOptions);
+        const countries = await response.json();
+        const result = countries.map(country => ({
+            name: country.name,
+            iso2: country.iso2
+        }));
+        populateSelect(result, $('#country-select'), 'country')
+    } catch (error) {
+        console.error('error', error);
+        return { error: 'Failed to fetch country data' };
+    }
+}
+
+// State Code API call function
+async function fetchStateData(countryCode) {
+    const headers = new Headers();
+    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+    const requestOptions = {
+        method: 'GET',
+        headers: headers,
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}}/states`, requestOptions);
+        const states = await response.json();
+        populateSelect(states, $('#state-select', 'state'))
+    } catch (error) {
+        console.error('error', error);
+        return { error: 'Failed to fetch country data' };
+    }
+}
+
 
 //Helper Function
 
@@ -291,4 +341,24 @@ function getAQIClass(aqi) {
 
     return {aqiClass, aqiText, aqiTitle};
 }
+
+// Function to put in dropdown country list
+function populateSelect(datas, $selectElement, name) {
+
+    // Clear existing options
+    $selectElement.empty().append(`<option selected>Select a ${name}</option>`);
+
+    // Add new options
+    datas.forEach(data => {
+        const $option = $('<option>', {
+            value: data.iso2, // Set iso2 as the value
+            text: data.name   // Set name as the display text
+        });
+        $selectElement.append($option);
+    });
+}
+
+
+
+
 
