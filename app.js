@@ -19,7 +19,11 @@ $(document).ready(function() {
     updateHomeTab();
 
     setupLocationDropdowns('live')
-
+    setupLocationDropdowns('history')
+    setupLocationDropdowns('forecast')
+    setupLocationDropdowns('compare-weather')
+    setupLocationDropdowns('compare-city1')
+    setupLocationDropdowns('compare-city2')
     // Update the live AQI tab
     $('#search-live').on('click', async function () {
         let selectedElement;
@@ -60,10 +64,7 @@ $(document).ready(function() {
         $('#live-aqi-colour').next("span").text(UiClass.aqiTitle);
 
         const pollutantData = Object.values(owData.list[0].components);
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-        chartInstance = new Chart($('#pollutantLiveChart'), {
+        chartInstanceLive = new Chart($('#pollutantLiveChart'), {
             type: 'bar',
             data: {
                 labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
@@ -125,7 +126,7 @@ function updateAQIDisplay(data) {
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
 
-    chartInstance = new Chart($('#summaryPollutantChart'), {
+    chart1 = new Chart($('#summaryPollutantChart'), {
         type: 'bar',
         data: {
             labels: ['CO', 'NO₂', 'O₃', 'PM₁₀', 'PM₂.₅', 'SO₂'],
@@ -369,7 +370,7 @@ async function setupLocationDropdowns(tabName) {
                 name: country.name,
                 iso2: country.iso2
             }));
-            populateSelect(result, $(`#country-select-${tabName}`), 'country', false);
+            populateSelect(result, $(`#country-select-${tabName}`), 'Country', false);
         } catch (error) {
             console.error('error', error);
         }
@@ -389,7 +390,7 @@ async function setupLocationDropdowns(tabName) {
         try {
             const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, requestOptions);
             const states = await response.json();
-            populateSelect(states, $(`#state-select-${tabName}`), 'state', false);
+            populateSelect(states, $(`#state-select-${tabName}`), 'State', false);
         } catch (error) {
             console.error('error', error);
         }
@@ -409,7 +410,7 @@ async function setupLocationDropdowns(tabName) {
         try {
             const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, requestOptions);
             const cities = await response.json();
-            populateSelect(cities, $(`#city-select-${tabName}`), 'city', true);
+            populateSelect(cities, $(`#city-select-${tabName}`), 'City', true);
         } catch (error) {
             console.error('error', error);
         }

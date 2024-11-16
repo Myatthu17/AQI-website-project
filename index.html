@@ -104,24 +104,25 @@
 
                 <!-- Live AQI tab  -->
                 <div id="live-content" class="content-section d-none">
+
+                    <!-- Dropdown  -->
                     <div class="mb-3 card">
                         <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
                             <select id="country-select-live" class="form-select" aria-label="Country">
-                                
+                                <option value="" selected>Select a Country</option>
                             </select>
-                    
                             <select id="state-select-live" class="form-select" aria-label="State" disabled>
-                                <option selected>Select a state</option>
+                                <option value="" selected>Select a State</option>
                             </select>
-
                             <select id="city-select-live" class="form-select" disabled>
-                                <option selected>Select a city</option>
+                                <option value="" selected>Select a City</option>
                             </select>
-                    
+                        
                             <button type="button" class="btn btn-primary" id="search-live" disabled>Search</button>
                         </div>
                     </div>
 
+                    <!-- Data  -->
                     <h3 class="h5 text-white-50">Current Weather</h3>
                     <div class="d-flex flex-column flex-lg-row gap-3">
                         
@@ -166,7 +167,7 @@
                         </div>
                     </div>                    
                     
-
+                    <!-- Chart  -->
                     <div class="flex-column flex-lg-row mt-3">
                         
                         <div class="col">
@@ -176,28 +177,113 @@
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                     
                 </div>
 
                 <!-- AQI History tab  -->
                 <div id="history-content" class="content-section d-none">
+
+                    <!-- Dropdown  -->
+                    <div class="mb-3 card">
+                        <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
+                            <select id="country-select-history" class="form-select" aria-label="Country">
+                                <option value="" selected>Select a Country</option>
+                            </select>
+                            <select id="state-select-history" class="form-select" aria-label="State" disabled>
+                                <option value="" selected>Select a State</option>
+                            </select>
+                            <select id="city-select-history" class="form-select" disabled>
+                                <option value="" selected>Select a City</option>
+                            </select>
+                        
+                            <button type="button" class="btn btn-primary" id="search-history" disabled>Search</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Forecast tab  -->
                 <div id="forecast-content" class="content-section d-none">
 
+                    <!-- Dropdown  -->
+                    <div class="mb-3 card">
+                        <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
+                            <select id="country-select-forecast" class="form-select" aria-label="Country">
+                                <option value="" selected>Select a Country</option>
+                            </select>
+                            <select id="state-select-forecast" class="form-select" aria-label="State" disabled>
+                                <option value="" selected>Select a State</option>
+                            </select>
+                            <select id="city-select-forecast" class="form-select" disabled>
+                                <option value="" selected>Select a City</option>
+                            </select>
+                        
+                            <button type="button" class="btn btn-primary" id="search-forecast" disabled>Search</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Compare Location tab  -->
                 <div id="compare-location-content" class="content-section d-none">
-                </div>
 
+                    <!-- Dropdown  -->
+                    <h3 class="text-white-50">Select First City to compare</h3>
+                    <div class="mb-3 card">
+                        <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
+                            <select id="country-select-compare-city1" class="form-select" aria-label="Country">
+                                <option value="" selected>Select a Country</option>
+                            </select>
+                            <select id="state-select-compare-city1" class="form-select" aria-label="State" disabled>
+                                <option value="" selected>Select a State</option>
+                            </select>
+                            <select id="city-select-compare-city1" class="form-select" disabled>
+                                <option value="" selected>Select a City</option>
+                            </select>
+                        
+                            <button type="button" class="btn btn-primary" id="search-compare-city1" disabled>Search</button>
+                        </div>
+                    </div>
+                    <h3 class="text-white-50">Select Second City to compare</h3>
+                    <div class="mb-3 card">
+                        <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
+                            <select id="country-select-compare-city2" class="form-select" aria-label="Country">
+                                <option value="" selected>Select a Country</option>
+                            </select>
+                            <select id="state-select-compare-city2" class="form-select" aria-label="State" disabled>
+                                <option value="" selected>Select a State</option>
+                            </select>
+                            <select id="city-select-compare-city2" class="form-select" disabled>
+                                <option value="" selected>Select a City</option>
+                            </select>
+                        
+                            <button type="button" class="btn btn-primary" id="search-compare-city2" disabled>Search</button>
+                        </div>
+                    </div>
 
-                <!--  AQI & Weather TrendTab -->
-                <div id="aqi-weather-content" class="content-section d-none">
                     
                 </div>
+
+
+                <!--  AQI & Weather Trend Tab -->
+                <div id="aqi-weather-content" class="content-section d-none">
+                    <div class="mb-3 card">
+                        <div class="card-body d-flex flex-column flex-lg-row gap-3 align-items-center">
+                            <select id="country-select-compare-weather" class="form-select" aria-label="Country">
+                                <option value="" selected>Select a Country</option>
+                            </select>
+                            <select id="state-select-compare-weather" class="form-select" aria-label="State" disabled>
+                                <option value="" selected>Select a State</option>
+                            </select>
+                            <select id="city-select-compare-weather" class="form-select" disabled>
+                                <option value="" selected>Select a City</option>
+                            </select>
+                        
+                            <button type="button" class="btn btn-primary" id="search-compare-weather" disabled>Search</button>
+                        </div>
+                    </div>
+                </div>
+
 
 
 
