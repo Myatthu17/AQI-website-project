@@ -17,36 +17,82 @@ $(document).ready(function() {
 
     // Call the API function within the document ready function
     updateHomeTab();
-    fetchCountryData();
 
-    // Function to enable state-select based on country-select
-    $('#country-select').change(function() {
-        const countryCode = $(this).val();
-    
-        if ($(this).prop('selectedIndex') > 0) {
-            // Fetch states for the selected country
-            fetchStateData(countryCode);
-            $('#state-select').prop('disabled', false); // Enable the state dropdown
+    setupLocationDropdowns('live')
+
+    // Update the live AQI tab
+    $('#search-live').on('click', async function () {
+        let selectedElement;
+
+        // Determine the selected element
+        if ($('#city-select-live').prop('selectedIndex') > 0) {
+            // If a city is selected
+            selectedElement = $('#city-select-live').find(':selected');
         } else {
-            $('#state-select').prop('disabled', true).empty().append('<option selected>Select a state</option>');
+            // Fallback to state if no city is selected
+            selectedElement = $('#state-select-live').find(':selected');
         }
 
-        $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
-    });
+        // Retrieve lat and lon from the selected element
+        const lat = selectedElement.data('lat');
+        const lon = selectedElement.data('lon');
 
-    // Function to enable city-select based on state-select
-    $('#state-select').change(function() {
-        const countryCode = $('#country-select').val();
-        const stateCode = $(this).val();
-    
-        if ($(this).prop('selectedIndex') > 0) {
-            // Fetch cities for the selected state
-            fetchCityData(countryCode, stateCode);
-            $('#live-search').prop('disabled', false);
-        } else {
-            $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
-            $('#live-search').prop('disabled', true);
+        if (!lat || !lon) {
+            alert("Latitude and longitude not available for the selected location.");
+            return;
         }
+
+        // Fetch and update data using lat/lon
+        const waqiData = await fetchWAQIDataLatLon(lat, lon);
+        const owData = await fetchOpenWeatherAQIData(lat, lon, 'air_pollution');
+        const weatherData = await fetchOpenWeatherAQIData(lat, lon, 'weather');
+
+        const UiClass = getAQIClass(waqiData.data.aqi);
+
+        // Update UI and charts
+        const $liveAQIContainer = $('#live-aqi-colour').parent().parent();
+        $liveAQIContainer.removeClass(function(index, className) {
+            return (className.match(/(^|\s)bg\S+/g) || []).join(' ');
+        });
+        $liveAQIContainer.addClass("bg" + UiClass.aqiClass);
+
+        $('#live-aqi-colour').text(waqiData.data.aqi);
+        $('#live-aqi-colour').next("span").text(UiClass.aqiTitle);
+
+        const pollutantData = Object.values(owData.list[0].components);
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        chartInstance = new Chart($('#pollutantLiveChart'), {
+            type: 'bar',
+            data: {
+                labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
+                datasets: [{
+                    label: "Concentration (µg/m³)",
+                    data: pollutantData,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Pollutants Concentration"
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const tempC = weatherData.main.temp - 273.15;
+        $('#live-temperature').text(tempC.toFixed(2) + "  °C");
+        $('#live-humidity').text(weatherData.main.humidity + "  %");
+        $('#live-windspeed').text(weatherData.wind.speed + "  m/s");
     });
 });
 
@@ -183,80 +229,7 @@ function updatepm10LineChart(data) {
     });
 }
 
-// Update the live AQI tab
-$('#live-search').on('click', async function () {
-    let selectedElement;
 
-    // Determine the selected element
-    if ($('#city-select').prop('selectedIndex') > 0) {
-        // If a city is selected
-        selectedElement = $('#city-select').find(':selected');
-    } else {
-        // Fallback to state if no city is selected
-        selectedElement = $('#state-select').find(':selected');
-    }
-
-    // Retrieve lat and lon from the selected element
-    const lat = selectedElement.data('lat');
-    const lon = selectedElement.data('lon');
-
-    if (!lat || !lon) {
-        alert("Latitude and longitude not available for the selected location.");
-        return;
-    }
-
-    // Fetch and update data using lat/lon
-    const waqiData = await fetchWAQIDataLatLon(lat, lon);
-    const owData = await fetchOpenWeatherAQIData(lat, lon, 'air_pollution');
-    const weatherData = await fetchOpenWeatherAQIData(lat, lon, 'weather');
-
-    const UiClass = getAQIClass(waqiData.data.aqi);
-
-    // Update UI and charts
-    const $liveAQIContainer = $('#live-aqi-colour').parent().parent();
-    $liveAQIContainer.removeClass(function(index, className) {
-        return (className.match(/(^|\s)bg\S+/g) || []).join(' ');
-    });
-    $liveAQIContainer.addClass("bg" + UiClass.aqiClass);
-
-    $('#live-aqi-colour').text(waqiData.data.aqi);
-    $('#live-aqi-colour').next("span").text(UiClass.aqiTitle);
-
-    const pollutantData = Object.values(owData.list[0].components);
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
-    chartInstance = new Chart($('#pollutantLiveChart'), {
-        type: 'bar',
-        data: {
-            labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
-            datasets: [{
-                label: "Concentration (µg/m³)",
-                data: pollutantData,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'x',
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Pollutants Concentration"
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    const tempC = weatherData.main.temp - 273.15;
-    $('#live-temperature').text(tempC.toFixed(2) + "  °C");
-    $('#live-humidity').text(weatherData.main.humidity + "  %");
-    $('#live-windspeed').text(weatherData.wind.speed + "  m/s");
-});
 
 // API call functions
 
@@ -316,74 +289,6 @@ async function fetchOpenWeatherAQIData(lat, lon, dataName) {
     }
 }
 
-// Country Code API call function
-async function fetchCountryData() {
-    const headers = new Headers();
-    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
-
-    const requestOptions = {
-        method: 'GET',
-        headers: headers,
-        redirect: 'follow'
-    };
-
-    try {
-        const response = await fetch("https://api.countrystatecity.in/v1/countries", requestOptions);
-        const countries = await response.json();
-        const result = countries.map(country => ({
-            name: country.name,
-            iso2: country.iso2
-        }));
-        populateSelect(result, $('#country-select'), 'country', false)
-    } catch (error) {
-        console.error('error', error);
-        return { error: 'Failed to fetch country data' };
-    }
-}
-
-// State Code API call function
-async function fetchStateData(countryCode) {
-    const headers = new Headers();
-    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
-
-    const requestOptions = {
-        method: 'GET',
-        headers: headers,
-        redirect: 'follow'
-    };
-
-    try {
-        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, requestOptions);
-        const states = await response.json();
-        populateSelect(states, $('#state-select'), 'state', false)
-    } catch (error) {
-        console.error('error', error);
-        return { error: 'Failed to fetch country data' };
-    }
-}
-
-// Fetch cities for a selected state
-async function fetchCityData(countryCode, stateCode) {
-    const headers = new Headers();
-    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
-
-    const requestOptions = {
-        method: 'GET',
-        headers: headers,
-        redirect: 'follow'
-    };
-
-    try {
-        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, requestOptions);
-        const cities = await response.json();
-        populateSelect(cities, $('#city-select'), 'city', true); // Include lat/lon in data attributes
-    } catch (error) {
-        console.error('error', error);
-        return { error: 'Failed to fetch city data' };
-    }
-}
-
-
 
 //Helper Function
 
@@ -423,29 +328,122 @@ function getAQIClass(aqi) {
     return {aqiClass, aqiText, aqiTitle};
 }
 
-// Function to populate dropdown list
-function populateSelect(datas, $selectElement, name, includeLatLon = false) {
-    // Clear existing options
-    $selectElement.empty().append(`<option selected>Select a ${name}</option>`);
+async function setupLocationDropdowns(tabName) {
+    // Helper function to populate dropdown list
+    function populateSelect(datas, $selectElement, name, includeLatLon = false) {
+        $selectElement.empty().append(`<option selected>Select a ${name}</option>`);
 
-    // Add new options
-    datas.forEach(data => {
-        const attributes = {
-            value: data.iso2 || data.name, // Use iso2 for states/countries, name for cities
-            text: data.name               // Display name
+        datas.forEach(data => {
+            const attributes = {
+                value: data.iso2 || data.name,
+                text: data.name
+            };
+
+            if (includeLatLon) {
+                attributes['data-lat'] = data.latitude;
+                attributes['data-lon'] = data.longitude;
+            }
+
+            const $option = $('<option>', attributes);
+            $selectElement.append($option);
+        });
+
+        $selectElement.prop('disabled', false);
+    }
+
+    // Fetch country data
+    async function fetchCountryData() {
+        const headers = new Headers();
+        headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+        const requestOptions = {
+            method: 'GET',
+            headers: headers,
+            redirect: 'follow'
         };
 
-        if (includeLatLon) {
-            attributes['data-lat'] = data.latitude;
-            attributes['data-lon'] = data.longitude;
+        try {
+            const response = await fetch("https://api.countrystatecity.in/v1/countries", requestOptions);
+            const countries = await response.json();
+            const result = countries.map(country => ({
+                name: country.name,
+                iso2: country.iso2
+            }));
+            populateSelect(result, $(`#country-select-${tabName}`), 'country', false);
+        } catch (error) {
+            console.error('error', error);
+        }
+    }
+
+    // Fetch state data
+    async function fetchStateData(countryCode) {
+        const headers = new Headers();
+        headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+        const requestOptions = {
+            method: 'GET',
+            headers: headers,
+            redirect: 'follow'
+        };
+
+        try {
+            const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, requestOptions);
+            const states = await response.json();
+            populateSelect(states, $(`#state-select-${tabName}`), 'state', false);
+        } catch (error) {
+            console.error('error', error);
+        }
+    }
+
+    // Fetch city data
+    async function fetchCityData(countryCode, stateCode) {
+        const headers = new Headers();
+        headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+        const requestOptions = {
+            method: 'GET',
+            headers: headers,
+            redirect: 'follow'
+        };
+
+        try {
+            const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, requestOptions);
+            const cities = await response.json();
+            populateSelect(cities, $(`#city-select-${tabName}`), 'city', true);
+        } catch (error) {
+            console.error('error', error);
+        }
+    }
+
+    // Event handler for country select
+    $(`#country-select-${tabName}`).change(function() {
+        const countryCode = $(this).val();
+        if ($(this).prop('selectedIndex') > 0) {
+            fetchStateData(countryCode);
+            $(`#state-select-${tabName}`).prop('disabled', false); // Enable state dropdown
+        } else {
+            $(`#state-select-${tabName}`).prop('disabled', true).empty().append('<option selected>Select a state</option>');
         }
 
-        const $option = $('<option>', attributes);
-        $selectElement.append($option);
+        $(`#city-select-${tabName}`).prop('disabled', true).empty().append('<option selected>Select a city</option>');
     });
 
-    // Enable the dropdown
-    $selectElement.prop('disabled', false);
+    // Event handler for state select
+    $(`#state-select-${tabName}`).change(function() {
+        const countryCode = $(`#country-select-${tabName}`).val();
+        const stateCode = $(this).val();
+
+        if ($(this).prop('selectedIndex') > 0) {
+            fetchCityData(countryCode, stateCode);
+            $(`#search-${tabName}`).prop('disabled', false);
+        } else {
+            $(`#city-select-${tabName}`).prop('disabled', true).empty().append('<option selected>Select a city</option>');
+            $(`#search-${tabName}`).prop('disabled', true);
+        }
+    });
+
+    // Initialize by fetching country data
+    fetchCountryData();
 }
 
 
