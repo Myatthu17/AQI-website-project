@@ -21,16 +21,39 @@ $(document).ready(function() {
 
     // Function to enable state-select based on country-select
     $('#country-select').change(function() {
-        // Check if a valid country is selected (not the first default option)
+        const countryCode = $(this).val();
+    
         if ($(this).prop('selectedIndex') > 0) {
-            $('#state-select').prop('disabled', false); // Enable the city dropdown
+            // Fetch states for the selected country
+            fetchStateData(countryCode);
+            $('#state-select').prop('disabled', false); // Enable the state dropdown
         } else {
-            fetchStateData($(this).val())
-            $('#state-select').prop('disabled', true); // Disable the city dropdown
+            $('#state-select').prop('disabled', true).empty().append('<option selected>Select a state</option>');
         }
-
-        
     });
+
+    // Function to enable city-select based on state-select
+    $('#state-select').change(function() {
+        const countryCode = $('#country-select').val();
+        const stateCode = $(this).val();
+    
+        if ($(this).prop('selectedIndex') > 0) {
+            // Fetch cities for the selected state
+            fetchCityData(countryCode, stateCode);
+        } else {
+            $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
+        }
+    });
+
+    // Function to enable Search button based on state-select
+    $('#city-select').change(function() {
+        if ($(this).prop('selectedIndex') > 0) {
+            $('#live-search').prop('disabled', false);
+        } else {
+            $('#live-search').prop('disabled', true);
+        }
+    })
+    
 
 });
 
@@ -170,10 +193,12 @@ function updatepm10LineChart(data) {
 // Update the live AQI tab
 
 $('#live-search').on('click', async function() {
-    const cityName = 'Busan';
-    waqiData = await fetchWAQIData(cityName)
-    owData = await fetchOpenWeatherAQIData(35, 129, 'air_pollution')
-    weatherData = await fetchOpenWeatherAQIData(35, 129, 'weather')
+    const cityName = $('#city-select').find(':selected');
+    const lat = cityName.data('lat');
+    const lon = cityName.data('lon');
+    waqiData = await fetchWAQIDataLatLon(lat, lon)
+    owData = await fetchOpenWeatherAQIData(lat, lon, 'air_pollution')
+    weatherData = await fetchOpenWeatherAQIData(lat, lon, 'weather')
 
     const UiClass = getAQIClass(waqiData.data.aqi);
     $('#live-aqi-colour').parent().parent().addClass("bg" + UiClass.aqiClass);
@@ -236,6 +261,23 @@ async function fetchWAQIData(place) {
     }
 }
 
+async function fetchWAQIDataLatLon(lat, lon) {
+    const apiKey = '51d3e7ebfc2c3ad6ba7bc300bb7940c20ddd905c';
+    const AQIapiUrl = `https://api.waqi.info/feed/geo:${lat};${lon}/?token=${apiKey}`;
+
+    try {
+        const response = await fetch(AQIapiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error("Error fetching AQI data:", error);
+    }
+}
+
 
 // Open Weather Current AQI API call function
 async function fetchOpenWeatherAQIData(lat, lon, dataName) {
@@ -275,7 +317,7 @@ async function fetchCountryData() {
             name: country.name,
             iso2: country.iso2
         }));
-        populateSelect(result, $('#country-select'), 'country')
+        populateSelect(result, $('#country-select'), 'country', false)
     } catch (error) {
         console.error('error', error);
         return { error: 'Failed to fetch country data' };
@@ -294,14 +336,36 @@ async function fetchStateData(countryCode) {
     };
 
     try {
-        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}}/states`, requestOptions);
+        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, requestOptions);
         const states = await response.json();
-        populateSelect(states, $('#state-select', 'state'))
+        populateSelect(states, $('#state-select'), 'state', false)
     } catch (error) {
         console.error('error', error);
         return { error: 'Failed to fetch country data' };
     }
 }
+
+// Fetch cities for a selected state
+async function fetchCityData(countryCode, stateCode) {
+    const headers = new Headers();
+    headers.append("X-CSCAPI-KEY", "OEptamRnRVc3S3JuSktJamdOZHRsOG42YW5BV2NnRU9xWlM4N0xiNA==");
+
+    const requestOptions = {
+        method: 'GET',
+        headers: headers,
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, requestOptions);
+        const cities = await response.json();
+        populateSelect(cities, $('#city-select'), 'city', true); // Include lat/lon in data attributes
+    } catch (error) {
+        console.error('error', error);
+        return { error: 'Failed to fetch city data' };
+    }
+}
+
 
 
 //Helper Function
@@ -342,21 +406,31 @@ function getAQIClass(aqi) {
     return {aqiClass, aqiText, aqiTitle};
 }
 
-// Function to put in dropdown country list
-function populateSelect(datas, $selectElement, name) {
-
+// Function to put in dropdown list
+function populateSelect(datas, $selectElement, name, includeLatLon = false) {
     // Clear existing options
     $selectElement.empty().append(`<option selected>Select a ${name}</option>`);
 
     // Add new options
     datas.forEach(data => {
-        const $option = $('<option>', {
-            value: data.iso2, // Set iso2 as the value
-            text: data.name   // Set name as the display text
-        });
+        const attributes = {
+            value: data.iso2, // Set iso2 or name as the value
+            text: data.name               // Set name as the display text
+        };
+
+        if (includeLatLon) {
+            attributes['data-lat'] = data.latitude;
+            attributes['data-lon'] = data.longitude;
+        }
+
+        const $option = $('<option>', attributes);
         $selectElement.append($option);
     });
+
+    // Enable the dropdown
+    $selectElement.prop('disabled', false);
 }
+
 
 
 
