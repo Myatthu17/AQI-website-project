@@ -15,6 +15,10 @@ $(document).ready(function() {
         $(targetId).removeClass('d-none');
     });
 
+    $('#home-content').on('click', function(event) {
+        updateHomeTab();
+    });
+
     // Call the API function within the document ready function
     updateHomeTab();
 
