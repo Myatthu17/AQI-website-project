@@ -30,6 +30,8 @@ $(document).ready(function() {
         } else {
             $('#state-select').prop('disabled', true).empty().append('<option selected>Select a state</option>');
         }
+
+        $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
     });
 
     // Function to enable city-select based on state-select
@@ -40,21 +42,12 @@ $(document).ready(function() {
         if ($(this).prop('selectedIndex') > 0) {
             // Fetch cities for the selected state
             fetchCityData(countryCode, stateCode);
-        } else {
-            $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
-        }
-    });
-
-    // Function to enable Search button based on state-select
-    $('#city-select').change(function() {
-        if ($(this).prop('selectedIndex') > 0) {
             $('#live-search').prop('disabled', false);
         } else {
+            $('#city-select').prop('disabled', true).empty().append('<option selected>Select a city</option>');
             $('#live-search').prop('disabled', true);
         }
-    })
-    
-
+    });
 });
 
 
@@ -191,22 +184,48 @@ function updatepm10LineChart(data) {
 }
 
 // Update the live AQI tab
+$('#live-search').on('click', async function () {
+    let selectedElement;
 
-$('#live-search').on('click', async function() {
-    const cityName = $('#city-select').find(':selected');
-    const lat = cityName.data('lat');
-    const lon = cityName.data('lon');
-    waqiData = await fetchWAQIDataLatLon(lat, lon)
-    owData = await fetchOpenWeatherAQIData(lat, lon, 'air_pollution')
-    weatherData = await fetchOpenWeatherAQIData(lat, lon, 'weather')
+    // Determine the selected element
+    if ($('#city-select').prop('selectedIndex') > 0) {
+        // If a city is selected
+        selectedElement = $('#city-select').find(':selected');
+    } else {
+        // Fallback to state if no city is selected
+        selectedElement = $('#state-select').find(':selected');
+    }
+
+    // Retrieve lat and lon from the selected element
+    const lat = selectedElement.data('lat');
+    const lon = selectedElement.data('lon');
+
+    if (!lat || !lon) {
+        alert("Latitude and longitude not available for the selected location.");
+        return;
+    }
+
+    // Fetch and update data using lat/lon
+    const waqiData = await fetchWAQIDataLatLon(lat, lon);
+    const owData = await fetchOpenWeatherAQIData(lat, lon, 'air_pollution');
+    const weatherData = await fetchOpenWeatherAQIData(lat, lon, 'weather');
 
     const UiClass = getAQIClass(waqiData.data.aqi);
-    $('#live-aqi-colour').parent().parent().addClass("bg" + UiClass.aqiClass);
+
+    // Update UI and charts
+    const $liveAQIContainer = $('#live-aqi-colour').parent().parent();
+    $liveAQIContainer.removeClass(function(index, className) {
+        return (className.match(/(^|\s)bg\S+/g) || []).join(' ');
+    });
+    $liveAQIContainer.addClass("bg" + UiClass.aqiClass);
+
     $('#live-aqi-colour').text(waqiData.data.aqi);
     $('#live-aqi-colour').next("span").text(UiClass.aqiTitle);
 
-    // Create Bar Chart
-    pollutantData = Object.values(owData.list[0].components)
+    const pollutantData = Object.values(owData.list[0].components);
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
     chartInstance = new Chart($('#pollutantLiveChart'), {
         type: 'bar',
         data: {
@@ -233,13 +252,11 @@ $('#live-search').on('click', async function() {
         }
     });
 
-    const tempC = weatherData.main.temp - 273.15
-
-    $('#live-temperature').text(tempC.toFixed(2) + "  °C")
-    $('#live-humidity').text(weatherData.main.humidity + "  %")
-    $('#live-windspeed').text(weatherData.wind.speed + "  m/s")
-
-})
+    const tempC = weatherData.main.temp - 273.15;
+    $('#live-temperature').text(tempC.toFixed(2) + "  °C");
+    $('#live-humidity').text(weatherData.main.humidity + "  %");
+    $('#live-windspeed').text(weatherData.wind.speed + "  m/s");
+});
 
 // API call functions
 
@@ -406,7 +423,7 @@ function getAQIClass(aqi) {
     return {aqiClass, aqiText, aqiTitle};
 }
 
-// Function to put in dropdown list
+// Function to populate dropdown list
 function populateSelect(datas, $selectElement, name, includeLatLon = false) {
     // Clear existing options
     $selectElement.empty().append(`<option selected>Select a ${name}</option>`);
@@ -414,8 +431,8 @@ function populateSelect(datas, $selectElement, name, includeLatLon = false) {
     // Add new options
     datas.forEach(data => {
         const attributes = {
-            value: data.iso2, // Set iso2 or name as the value
-            text: data.name               // Set name as the display text
+            value: data.iso2 || data.name, // Use iso2 for states/countries, name for cities
+            text: data.name               // Display name
         };
 
         if (includeLatLon) {
@@ -430,6 +447,7 @@ function populateSelect(datas, $selectElement, name, includeLatLon = false) {
     // Enable the dropdown
     $selectElement.prop('disabled', false);
 }
+
 
 
 
