@@ -21,6 +21,7 @@ This website provides real-time air quality index (AQI) data along with historic
 - **HTML/CSS/JavaScript**: For website structure, styling, and interactivity.
 - **Chart.js**: Used to create dynamic charts for AQI data visualization and trend analysis.
 - **OpenWeatherMap and WAQI APIs**: APIs that provide real-time and historical air quality and weather data.
+- **CountryStateCity API**: API that provide all Countries, States, Cities with ISO2, ISO3, Country Code, Phone Code, Capital, Native Language, Time zones, Latitude, Longitude, Region, Subregion, Flag Emoji, and Currency.
 - **jQuery**: A JavaScript library for simplifying DOM manipulation and event handling.
 - **Bootstrap**: A front-end framework for responsive web design and components.
 - **FontAwesome**: A library for scalable vector icons used for enhanced UI elements.
