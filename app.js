@@ -99,6 +99,10 @@ $(document).ready(function() {
         $('#live-humidity').text(weatherData.main.humidity + "  %");
         $('#live-windspeed').text(weatherData.wind.speed + "  m/s");
     });
+
+    window.addEventListener('resize', function () {
+        myChart.resize();
+    });
 });
 
 
@@ -156,6 +160,7 @@ function updateSummaryPollutantChart(components) {
             }]
         },
         options: {
+            responsive: true,
             indexAxis: 'y',
             plugins: {
                 legend: {
