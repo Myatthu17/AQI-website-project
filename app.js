@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    let lastHomeTabUpdate = new Date().getTime();
     // Handle tab switching
     $('.menu-item').on('click', function(event) {
         event.preventDefault(); // Prevent the default link behavior
@@ -13,10 +14,16 @@ $(document).ready(function() {
         // Show the target content section
         const targetId = $(this).data('target');
         $(targetId).removeClass('d-none');
-    });
 
-    $('#home-content').on('click', function(event) {
-        updateHomeTab();
+        // Call updateHomeTab if Home tab is clicked and more than 15 minutes have passed
+        if (targetId === '#home-content') {
+            const currentTime = new Date().getTime();
+            if ((currentTime - lastHomeTabUpdate) > 1000*60*10) {
+                updateHomeTab();
+                lastHomeTabUpdate = currentTime; // Update the last update time
+            }
+        }
+        
     });
 
     // Call the API function within the document ready function
