@@ -28,6 +28,7 @@ $(document).ready(function() {
 
     // Call the API function within the document ready function
     updateHomeTab();
+    
 
     setupLocationDropdowns('live')
     setupLocationDropdowns('history')
