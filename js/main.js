@@ -1,10 +1,11 @@
 import { fetchWAQIData, fetchWAQIDataLatLon, fetchOpenWeatherAQIData } from "./api.js";
+import { updatePollutantLiveChart, updateSummaryPollutantChart, updatepm10LineChart } from "./chart.js";
 
 
-$(document).ready(function() {
+$(document).ready(function () {
     let lastHomeTabUpdate = new Date().getTime();
     // Handle tab switching
-    $('.menu-item').on('click', function(event) {
+    $('.menu-item').on('click', function (event) {
         event.preventDefault(); // Prevent the default link behavior
 
         // Remove 'active' class from all items and add to the clicked one
@@ -21,17 +22,16 @@ $(document).ready(function() {
         // Call updateHomeTab if Home tab is clicked and more than 15 minutes have passed
         if (targetId === '#home-content') {
             const currentTime = new Date().getTime();
-            if ((currentTime - lastHomeTabUpdate) > 1000*60*10) {
+            if ((currentTime - lastHomeTabUpdate) > 1000 * 60 * 10) {
                 updateHomeTab();
                 lastHomeTabUpdate = currentTime; // Update the last update time
             }
         }
-        
+
     });
 
     // Call the API function within the document ready function
     updateHomeTab();
-    
 
     setupLocationDropdowns('live')
     setupLocationDropdowns('history')
@@ -40,7 +40,6 @@ $(document).ready(function() {
     setupLocationDropdowns('compare-city1')
     setupLocationDropdowns('compare-city2')
     // Update the live AQI tab
-    let chartInstanceLive = null;
     $('#search-live').on('click', async function () {
         let selectedElement;
 
@@ -71,7 +70,7 @@ $(document).ready(function() {
 
         // Update UI and charts
         const $liveAQIContainer = $('#live-aqi-colour').parent().parent();
-        $liveAQIContainer.removeClass(function(index, className) {
+        $liveAQIContainer.removeClass(function (index, className) {
             return (className.match(/(^|\s)bg\S+/g) || []).join(' ');
         });
         $liveAQIContainer.addClass("bg" + UiClass.aqiClass);
@@ -88,37 +87,7 @@ $(document).ready(function() {
         // update chart
 
         const pollutantData = Object.values(owData.list[0].components);
-        if (chartInstanceLive) {
-            // Update the existing chart if it exists
-            chartInstanceLive.data.datasets[0].data = pollutantData;
-            chartInstanceLive.update();
-        } else {
-            chartInstanceLive = new Chart($('#pollutantLiveChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['CO', 'NO', 'NO₂', 'O₃', 'SO₂', 'PM₂.₅', 'PM₁₀', 'NH₃'],
-                    datasets: [{
-                        label: "Concentration (µg/m³)",
-                        data: pollutantData,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'x',
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: "Pollutants Concentration"
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+        updatePollutantLiveChart(pollutantData);
     });
 });
 
@@ -146,127 +115,6 @@ function updateAQIDisplay(data) {
     $('.AQI-color').addClass("text" + result.aqiClass);
     $('.AQI-color').text(result.aqiTitle);
     $('.AQI-color').next("span").text(result.aqiText);
-}
-
-let chart1 = null;
-function updateSummaryPollutantChart(components) {
-    let data = Object.values(components).map(p => p.v);
-
-    if(chart1) {
-        chart1.data.datasets[0].data = data;
-        chart1.update();
-    } else {
-        chart1 = new Chart($('#summaryPollutantChart'), {
-            type: 'bar',
-            data: {
-                labels: ['CO', 'NO₂', 'O₃', 'PM₁₀', 'PM₂.₅', 'SO₂'],
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',  // CO
-                        'rgba(54, 162, 235, 0.5)',  // NO2
-                        'rgba(75, 192, 192, 0.5)',  // O3
-                        'rgba(153, 102, 255, 0.5)', // PM10
-                        'rgba(255, 159, 64, 0.5)',  // PM2.5
-                        'rgba(255, 206, 86, 0.5)'   // SO2
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                indexAxis: 'y',
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: true,
-                        text: "Pollutant Individual AQI"
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: "IAQI"
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Pollutants'
-                        },
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-}
-
-let chart = null;
-function updatepm10LineChart(data) {
-    const dateLabels = data.map(item => item.day);
-    const average = data.map(item => item.avg);
-    
-    const ctx = $('#pm10LineChart');
-    if(chart) {
-        chart.data.datasets[0].data = average;
-        chart.data.labels = dateLabels;
-        chart.update();
-    } else {
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dateLabels,
-                datasets: [{
-                    label: 'PM10 IAQI',
-                    data: average,
-                    borderColor: 'rgba(255, 99, 132, 1)',  // Line color
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Fill under the line
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',  // Point color
-                    pointRadius: 4,
-                    tension: 0.4  // Curve the line slightly for smoother visuals
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "PM10 IAQI"
-                    },
-                    legend: {
-                        display: false,
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'PM10 IAQI'
-                        }
-                    }
-                }
-            }
-        });
-    }
 }
 
 
@@ -305,7 +153,7 @@ function getAQIClass(aqi) {
         aqiTitle = "Air quality is Hazardous";
     }
 
-    return {aqiClass, aqiText, aqiTitle};
+    return { aqiClass, aqiText, aqiTitle };
 }
 
 async function setupLocationDropdowns(tabName) {
@@ -396,7 +244,7 @@ async function setupLocationDropdowns(tabName) {
     }
 
     // Event handler for country select
-    $(`#country-select-${tabName}`).change(function() {
+    $(`#country-select-${tabName}`).change(function () {
         const countryCode = $(this).val();
         if ($(this).prop('selectedIndex') > 0) {
             fetchStateData(countryCode);
@@ -409,7 +257,7 @@ async function setupLocationDropdowns(tabName) {
     });
 
     // Event handler for state select
-    $(`#state-select-${tabName}`).change(function() {
+    $(`#state-select-${tabName}`).change(function () {
         const countryCode = $(`#country-select-${tabName}`).val();
         const stateCode = $(this).val();
 
@@ -425,10 +273,3 @@ async function setupLocationDropdowns(tabName) {
     // Initialize by fetching country data
     fetchCountryData();
 }
-
-
-
-
-
-
-
