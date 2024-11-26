@@ -1,4 +1,4 @@
-import { fetchWAQIData, fetchWAQIDataLatLon, fetchOpenWeatherAQIData } from "./api";
+import { fetchWAQIData, fetchWAQIDataLatLon, fetchOpenWeatherAQIData } from "./api.js";
 
 
 $(document).ready(function() {
