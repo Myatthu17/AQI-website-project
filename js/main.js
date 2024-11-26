@@ -1,36 +1,12 @@
-import { fetchWAQIData, fetchWAQIDataLatLon, fetchOpenWeatherAQIData } from "./api.js";
-import { updatePollutantLiveChart, updateSummaryPollutantChart, updatepm10LineChart } from "./chart.js";
+import { fetchWAQIDataLatLon, fetchOpenWeatherAQIData } from "./api.js";
+import { updatePollutantLiveChart} from "./chart.js";
 import { getAQIClass, setupLocationDropdowns } from "./helper.js";
+import { setupTabs, updateHomeTab } from "./tabs.js";
 
 
 $(document).ready(function () {
-    let lastHomeTabUpdate = new Date().getTime();
-    // Handle tab switching
-    $('.menu-item').on('click', function (event) {
-        event.preventDefault(); // Prevent the default link behavior
-
-        // Remove 'active' class from all items and add to the clicked one
-        $('.menu-item').removeClass('active');
-        $(this).addClass('active');
-
-        // Hide all content sections
-        $('.content-section').addClass('d-none');
-
-        // Show the target content section
-        const targetId = $(this).data('target');
-        $(targetId).removeClass('d-none');
-
-        // Call updateHomeTab if Home tab is clicked and more than 15 minutes have passed
-        if (targetId === '#home-content') {
-            const currentTime = new Date().getTime();
-            if ((currentTime - lastHomeTabUpdate) > 1000 * 60 * 10) {
-                updateHomeTab();
-                lastHomeTabUpdate = currentTime; // Update the last update time
-            }
-        }
-
-    });
-
+    
+    setupTabs();
     // Call the API function within the document ready function
     updateHomeTab();
 
@@ -91,29 +67,3 @@ $(document).ready(function () {
         updatePollutantLiveChart(pollutantData);
     });
 });
-
-
-
-// Update the home tab with AQI data
-async function updateHomeTab() {
-    const jsonData = await fetchWAQIData('here'); // Await the async function
-
-    // Check if jsonData was successfully retrieved before updating the UI
-    if (jsonData && jsonData.data) {
-        // Handle the data from the API
-        updateAQIDisplay(jsonData.data);
-        updateSummaryPollutantChart(jsonData.data.iaqi);
-        updatepm10LineChart(jsonData.data.forecast.daily.pm10);
-    } else {
-        console.error("No data available to update the home tab.");
-    }
-}
-
-function updateAQIDisplay(data) {
-    let result = getAQIClass(data.aqi);
-
-    $('span.current-city').text(data.city.name);
-    $('.AQI-color').addClass("text" + result.aqiClass);
-    $('.AQI-color').text(result.aqiTitle);
-    $('.AQI-color').next("span").text(result.aqiText);
-}
