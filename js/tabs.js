@@ -134,10 +134,12 @@ function searchButtonForecast() {
             return;
         }
 
+        const pollutant = $('#pollutant-select-forecast').find(':selected').val();
+
         // Fetch and update data
         const waqiData = await fetchWAQIDataLatLon(lat, lon);
         
-        updatePollutantTrendsChart(waqiData.data.forecast.daily.pm25);
+        updatePollutantTrendsChart(waqiData, pollutant);
     })
 }
 

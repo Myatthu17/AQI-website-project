@@ -158,7 +158,9 @@ function updatepm10LineChart(data) {
     }
 }
 
-function updatePollutantTrendsChart(data) {
+function updatePollutantTrendsChart(waqiData, pollutant) {
+
+    const data = waqiData.data.forecast.daily[pollutant];
     const dateLabels = data.map(item => item.day);
     const average = data.map(item => item.avg);
     
