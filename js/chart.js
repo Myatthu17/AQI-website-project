@@ -188,7 +188,7 @@ function updatePollutantTrendsChart(waqiData, pollutant) {
                 responsive: true,
                 plugins: {
                     title: {
-                        display: true,
+                        display: false,
                         text: "PM10 IAQI"
                     },
                     legend: {
@@ -204,7 +204,7 @@ function updatePollutantTrendsChart(waqiData, pollutant) {
                     },
                     y: {
                         title: {
-                            display: true,
+                            display: false,
                             text: 'PM10 IAQI'
                         }
                     }
