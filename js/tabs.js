@@ -1,4 +1,4 @@
-import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart } from "./chart.js";
+import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart } from "./chart.js";
 import { fetchWAQIData, fetchOpenWeatherAQIData, fetchWAQIDataLatLon } from "./api.js";
 import { getAQIClass } from "./helper.js";
 
@@ -111,4 +111,34 @@ function searchButtonLive() {
     });
 }
 
-export {setupTabs, updateHomeTab, searchButtonLive};
+// For Forecast Tab
+function searchButtonForecast() {
+    $('#search-forecast').on('click', async function() {
+        let selectedElement;
+
+        // Determine the selected element
+        if ($('#city-select-forecast').prop('selectedIndex') > 0) {
+            // If a city is selected
+            selectedElement = $('#city-select-forecast').find(':selected');
+        } else {
+            // Fallback to state if no city is selected
+            selectedElement = $('#state-select-forecast').find(':selected');
+        }
+
+        // Retrieve lat and lon from the selected element
+        const lat = selectedElement.data('lat');
+        const lon = selectedElement.data('lon');
+
+        if (!lat || !lon) {
+            alert("Latitude and longitude not available for the selected location.");
+            return;
+        }
+
+        // Fetch and update data
+        const waqiData = await fetchWAQIDataLatLon(lat, lon);
+        
+        updatePollutantTrendsChart(waqiData.data.forecast.daily.pm25);
+    })
+}
+
+export {setupTabs, updateHomeTab, searchButtonLive, searchButtonForecast};

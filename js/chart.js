@@ -2,7 +2,8 @@
 
 let chart1 = null;
 let chartInstanceLive = null;
-let chart = null;
+let pm10Chart = null;
+let chartInstanceHistoryPollutant = null;
 
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
@@ -107,12 +108,12 @@ function updatepm10LineChart(data) {
     const average = data.map(item => item.avg);
     
     const ctx = $('#pm10LineChart');
-    if(chart) {
-        chart.data.datasets[0].data = average;
-        chart.data.labels = dateLabels;
-        chart.update();
+    if(pm10Chart) {
+        pm10Chart.data.datasets[0].data = average;
+        pm10Chart.data.labels = dateLabels;
+        pm10Chart.update();
     } else {
-        chart = new Chart(ctx, {
+        pm10Chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: dateLabels,
@@ -157,4 +158,58 @@ function updatepm10LineChart(data) {
     }
 }
 
-export{updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart};
+function updatePollutantTrendsChart(data) {
+    const dateLabels = data.map(item => item.day);
+    const average = data.map(item => item.avg);
+    
+    if(chartInstanceHistoryPollutant) {
+        chartInstanceHistoryPollutant.data.datasets[0].data = average;
+        chartInstanceHistoryPollutant.data.labels = dateLabels;
+        chartInstanceHistoryPollutant.update();
+    } else {
+        chartInstanceHistoryPollutant = new Chart($('#pollutantTrendsChart'), {
+            type: 'line',
+            data: {
+                labels: dateLabels,
+                datasets: [{
+                    label: 'PM10 IAQI',
+                    data: average,
+                    borderColor: 'rgba(255, 99, 132, 1)',  // Line color
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Fill under the line
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',  // Point color
+                    pointRadius: 4,
+                    tension: 0.4  // Curve the line slightly for smoother visuals
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PM10 IAQI"
+                    },
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'PM10 IAQI'
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+export{updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart};
