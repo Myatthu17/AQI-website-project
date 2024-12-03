@@ -158,7 +158,9 @@ function updatepm10LineChart(data) {
     }
 }
 
-function updatePollutantTrendsChart(data) {
+function updatePollutantTrendsChart(waqiData, pollutant) {
+
+    const data = waqiData.data.forecast.daily[pollutant];
     const dateLabels = data.map(item => item.day);
     const average = data.map(item => item.avg);
     
@@ -186,7 +188,7 @@ function updatePollutantTrendsChart(data) {
                 responsive: true,
                 plugins: {
                     title: {
-                        display: true,
+                        display: false,
                         text: "PM10 IAQI"
                     },
                     legend: {
@@ -202,7 +204,7 @@ function updatePollutantTrendsChart(data) {
                     },
                     y: {
                         title: {
-                            display: true,
+                            display: false,
                             text: 'PM10 IAQI'
                         }
                     }

@@ -113,6 +113,7 @@ function searchButtonLive() {
 
 // For Forecast Tab
 function searchButtonForecast() {
+    let waqiData;
     $('#search-forecast').on('click', async function() {
         let selectedElement;
 
@@ -134,11 +135,19 @@ function searchButtonForecast() {
             return;
         }
 
+        const pollutant = $('#pollutant-select-forecast').find(':selected').val();
+
         // Fetch and update data
-        const waqiData = await fetchWAQIDataLatLon(lat, lon);
+        waqiData = await fetchWAQIDataLatLon(lat, lon);
         
-        updatePollutantTrendsChart(waqiData.data.forecast.daily.pm25);
+        updatePollutantTrendsChart(waqiData, pollutant);
     })
+
+    $('#pollutant-select-forecast').on('change', function() {
+        let selectedpollutant = $(this).val();
+        updatePollutantTrendsChart(waqiData, selectedpollutant);
+    });
+    
 }
 
 export {setupTabs, updateHomeTab, searchButtonLive, searchButtonForecast};

@@ -251,8 +251,15 @@
                             </div>
                         </div>
                         <div class="col">
+                            <h3 class="text-white-50">Individual Air Qulaity Index</h3>
                             <div class="card mb-3">
                                 <div class="card-body">
+                                    <select id="pollutant-select-forecast">
+                                        <option value="pm10" selected>pm10</option>
+                                        <option value="pm25">pm2.5</option>
+                                        <option value="o3">O3</option>
+                                        <option value="uvi">UVI</option>
+                                    </select>
                                     <canvas id="pollutantTrendsChart"></canvas>
                                 </div>
                             </div>
