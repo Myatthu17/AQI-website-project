@@ -112,7 +112,7 @@ function searchButtonLive() {
 }
 
 // For Forecast Tab
-function searchButtonForecast() {
+function updateForecastTab() {
     let waqiData;
     $('#search-forecast').on('click', async function() {
         let selectedElement;
@@ -147,7 +147,9 @@ function searchButtonForecast() {
         let selectedpollutant = $(this).val();
         updatePollutantTrendsChart(waqiData, selectedpollutant);
     });
+
+    // Pollutant concentration chart
     
 }
 
-export {setupTabs, updateHomeTab, searchButtonLive, searchButtonForecast};
+export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab};
