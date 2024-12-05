@@ -1,4 +1,4 @@
-import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart } from "./chart.js";
+import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart } from "./chart.js";
 import { fetchWAQIData, fetchOpenWeatherAQIData, fetchWAQIDataLatLon } from "./api.js";
 import { getAQIClass } from "./helper.js";
 
@@ -139,17 +139,18 @@ function updateForecastTab() {
 
         // Fetch and update data
         waqiData = await fetchWAQIDataLatLon(lat, lon);
+        // Pollutant concentration chart
+        const owData = await fetchOpenWeatherAQIData(lat, lon, "air_pollution/forecast");
         
         updatePollutantTrendsChart(waqiData, pollutant);
+
+        updatePollutantConcentrationForecastChart(owData.list.slice(0,24));
     })
 
     $('#pollutant-select-forecast').on('change', function() {
         let selectedpollutant = $(this).val();
         updatePollutantTrendsChart(waqiData, selectedpollutant);
     });
-
-    // Pollutant concentration chart
-    
 }
 
 export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab};

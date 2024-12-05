@@ -4,6 +4,7 @@ let chart1 = null;
 let chartInstanceLive = null;
 let pm10Chart = null;
 let chartInstanceHistoryPollutant = null;
+let pollutantForecastChart = null;
 
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
@@ -214,4 +215,56 @@ function updatePollutantTrendsChart(waqiData, pollutant) {
     }
 }
 
-export{updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart};
+function updatePollutantConcentrationForecastChart(owData) {
+    let data = [];
+    for (let i = 0; i < 6; i++) {
+        data.push(owData[i*4]);
+    } 
+    const labels = data.map(entry => new Date(entry.dt * 1000).toLocaleTimeString());
+    const components = ['co', 'no', 'no2', 'o3', 'so2', 'pm2_5', 'pm10', 'nh3'];
+    const datasets = components.map(component => ({
+        label: component.toUpperCase(),
+        data: data.map(entry => entry.components[component])
+    }));
+
+    if(pollutantForecastChart){
+        pollutantForecastChart.data.labels = labels;
+        pollutantForecastChart.update();
+    } else {
+        pollutantForecastChart = new Chart($('#pollutantConcentrationForecastChart'), {
+            type: 'bar',
+            data: {
+                labels: labels, // Time labels
+                datasets: datasets, // Data for each pollutant
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                },
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true, // Stack X-axis
+                    },
+                    y: {
+                        stacked: true, // Stack Y-axis
+                        title: {
+                            display: true,
+                            text: 'Concentration (µg/m³)', // Label for Y-axis
+                        },
+                    },
+                },
+            },
+        });
+    }
+}
+
+export{updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
