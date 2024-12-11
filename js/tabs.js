@@ -114,6 +114,7 @@ function searchButtonLive() {
 // For Forecast Tab
 function updateForecastTab() {
     let waqiData;
+    let owData;
     $('#search-forecast').on('click', async function() {
         let selectedElement;
 
@@ -136,20 +137,26 @@ function updateForecastTab() {
         }
 
         const pollutant = $('#pollutant-select-forecast').find(':selected').val();
+        const interval = $('#hour-interval-select-forecast').find(':selected').val();
 
         // Fetch and update data
         waqiData = await fetchWAQIDataLatLon(lat, lon);
         // Pollutant concentration chart
-        const owData = await fetchOpenWeatherAQIData(lat, lon, "air_pollution/forecast");
+        owData = await fetchOpenWeatherAQIData(lat, lon, "air_pollution/forecast");
         
         updatePollutantTrendsChart(waqiData, pollutant);
 
-        updatePollutantConcentrationForecastChart(owData.list.slice(0,24));
+        updatePollutantConcentrationForecastChart(owData.list.slice(0,49), interval);
     })
 
     $('#pollutant-select-forecast').on('change', function() {
         let selectedpollutant = $(this).val();
         updatePollutantTrendsChart(waqiData, selectedpollutant);
+    });
+
+    $('#hour-interval-select-forecast').on('change', function() {
+        let selectedinterval = $(this).val();
+        updatePollutantConcentrationForecastChart(owData.list.slice(0, 49), selectedinterval);
     });
 }
 

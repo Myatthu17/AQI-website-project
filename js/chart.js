@@ -215,12 +215,21 @@ function updatePollutantTrendsChart(waqiData, pollutant) {
     }
 }
 
-function updatePollutantConcentrationForecastChart(owData) {
+function updatePollutantConcentrationForecastChart(owData, interval) {
     let data = [];
-    for (let i = 0; i < 6; i++) {
-        data.push(owData[i*4]);
+    for (let i = 0; i < 9; i++) {
+        data.push(owData[i*interval]);
     } 
-    const labels = data.map(entry => new Date(entry.dt * 1000).toLocaleTimeString());
+    const labels = data.map(entry => {
+        const date = new Date(entry.dt * 1000);
+        return date.toLocaleString('en-US', {
+          month: 'short', // Short month name (e.g., "Dec")
+          day: 'numeric', // Day of the month (e.g., "11")
+          hour: 'numeric', // Hour in 12-hour format
+          minute: '2-digit', // Two-digit minute
+          hour12: true // Use 12-hour format with AM/PM
+        });
+      });      
     const components = ['co', 'no', 'no2', 'o3', 'so2', 'pm2_5', 'pm10', 'nh3'];
     const datasets = components.map(component => ({
         label: component.toUpperCase(),
@@ -229,6 +238,7 @@ function updatePollutantConcentrationForecastChart(owData) {
 
     if(pollutantForecastChart){
         pollutantForecastChart.data.labels = labels;
+        pollutantForecastChart.data.datasets = datasets;
         pollutantForecastChart.update();
     } else {
         pollutantForecastChart = new Chart($('#pollutantConcentrationForecastChart'), {
