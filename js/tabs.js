@@ -1,4 +1,4 @@
-import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart, updateAreaHistoryChart, updateRadarCitiesChart } from "./chart.js";
+import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart, updateAreaHistoryChart, updateRadarCitiesChart, updateAQIComparisonChart } from "./chart.js";
 import { fetchWAQIData, fetchOpenWeatherAQIData, fetchWAQIDataLatLon } from "./api.js";
 import { aggregateToDailyData, getAQIClass, getComponentsAndAQI } from "./helper.js";
 
@@ -260,6 +260,7 @@ function updateCityCompareTab() {
         cityData1 = await fetchOpenWeatherAQIData(lat, lon, "air_pollution");
         cityDataExtracted1 = getComponentsAndAQI(cityData1);
         updateRadarCitiesChart(cityDataExtracted1, cityDataExtracted2, cityName1, cityName2);
+        updateAQIComparisonChart(cityDataExtracted1.aqi, cityDataExtracted2.aqi, cityName1, cityName2);
     })
 
     $('#search-compare-city2').on('click', async function() {
@@ -287,6 +288,7 @@ function updateCityCompareTab() {
         cityData2 = await fetchOpenWeatherAQIData(lat, lon, "air_pollution");
         cityDataExtracted2 = getComponentsAndAQI(cityData2);
         updateRadarCitiesChart(cityDataExtracted1, cityDataExtracted2, cityName1, cityName2);
+        updateAQIComparisonChart(cityDataExtracted1.aqi, cityDataExtracted2.aqi, cityName1, cityName2);
     })
 }
 

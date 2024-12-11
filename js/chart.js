@@ -7,6 +7,7 @@ let chartInstanceHistoryPollutant = null;
 let pollutantForecastChart = null;
 let areaHistoryChart = null;
 let radarCitiesChart = null;
+let aqiComparisonChart = null;
 
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
@@ -379,4 +380,37 @@ function updateRadarCitiesChart(city1Data, city2Data, cityName1, cityName2) {
     }
 }
 
-export{updateRadarCitiesChart, updateAreaHistoryChart, updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
+function updateAQIComparisonChart(city1AQI, city2AQI, city1Name, city2Name) {
+    if (aqiComparisonChart) {
+        aqiComparisonChart.data.datasets[0].data = [city1AQI, city2AQI];
+        aqiComparisonChart.data.datasets[0].label = `AQI Comparison of ${city1Name} and ${city2Name}`;
+        aqiComparisonChart.update();
+    } else {
+        aqiComparisonChart = new Chart($('#aqiComparisonChart'), {
+            type: 'bar',  // Bar chart for AQI comparison
+            data: {
+                labels: [city1Name, city2Name], // City names as labels
+                datasets: [
+                    {
+                        label: 'AQI Comparison',
+                        data: [city1AQI, city2AQI],  // AQI values for the cities
+                        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                },
+                responsive: true,
+            }
+        });
+    }
+}
+
+export{updateAQIComparisonChart, updateRadarCitiesChart, updateAreaHistoryChart, updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
