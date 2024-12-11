@@ -1,6 +1,6 @@
-import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart, updateAreaHistoryChart } from "./chart.js";
+import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart, updateAreaHistoryChart, updateRadarCitiesChart } from "./chart.js";
 import { fetchWAQIData, fetchOpenWeatherAQIData, fetchWAQIDataLatLon } from "./api.js";
-import { aggregateToDailyData, getAQIClass } from "./helper.js";
+import { aggregateToDailyData, getAQIClass, getComponentsAndAQI } from "./helper.js";
 
 // Handle Tab switching
 let lastHomeTabUpdate = new Date().getTime();
@@ -214,4 +214,80 @@ function updateHistoryTab() {
     })
 }
 
-export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab, updateHistoryTab};
+// For city comparison tab
+function updateCityCompareTab() {
+    let cityData1, cityData2;
+    let cityDataExtracted1 = {
+        aqi: 0,
+        pm10: 0,
+        pm2_5: 0,
+        no2: 0,
+        o3: 0,
+        so2: 0
+    };
+    let cityDataExtracted2 = {
+        aqi: 0,
+        pm10: 0,
+        pm2_5: 0,
+        no2: 0,
+        o3: 0,
+        so2: 0
+    };
+    let cityName1 = 'City1';
+    let cityName2 = 'City2';
+    $('#search-compare-city1').on('click', async function() {
+        let selectedElement;
+
+        // Determine the selected element
+        if ($('#city-select-compare-city1').prop('selectedIndex') > 0) {
+            // If a city is selected
+            selectedElement = $('#city-select-compare-city1').find(':selected');
+        } else {
+            // Fallback to state if no city is selected
+            selectedElement = $('#state-select-compare-city1').find(':selected');
+        }
+
+        // Retrieve lat and lon from the selected element
+        const lat = selectedElement.data('lat');
+        const lon = selectedElement.data('lon');
+        cityName1 = selectedElement.text();
+
+        if (!lat || !lon) {
+            alert("Latitude and longitude not available for the selected location.");
+            return;
+        }
+
+        cityData1 = await fetchOpenWeatherAQIData(lat, lon, "air_pollution");
+        cityDataExtracted1 = getComponentsAndAQI(cityData1);
+        updateRadarCitiesChart(cityDataExtracted1, cityDataExtracted2, cityName1, cityName2);
+    })
+
+    $('#search-compare-city2').on('click', async function() {
+        let selectedElement;
+
+        // Determine the selected element
+        if ($('#city-select-compare-city2').prop('selectedIndex') > 0) {
+            // If a city is selected
+            selectedElement = $('#city-select-compare-city2').find(':selected');
+        } else {
+            // Fallback to state if no city is selected
+            selectedElement = $('#state-select-compare-city2').find(':selected');
+        }
+
+        // Retrieve lat and lon from the selected element
+        const lat = selectedElement.data('lat');
+        const lon = selectedElement.data('lon');
+        cityName2 = selectedElement.text();
+
+        if (!lat || !lon) {
+            alert("Latitude and longitude not available for the selected location.");
+            return;
+        }
+
+        cityData2 = await fetchOpenWeatherAQIData(lat, lon, "air_pollution");
+        cityDataExtracted2 = getComponentsAndAQI(cityData2);
+        updateRadarCitiesChart(cityDataExtracted1, cityDataExtracted2, cityName1, cityName2);
+    })
+}
+
+export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab, updateHistoryTab, updateCityCompareTab};

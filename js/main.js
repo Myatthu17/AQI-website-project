@@ -1,5 +1,5 @@
 import { setupLocationDropdowns } from "./helper.js";
-import { updateForecastTab, searchButtonLive, setupTabs, updateHomeTab, updateHistoryTab } from "./tabs.js";
+import { updateForecastTab, searchButtonLive, setupTabs, updateHomeTab, updateHistoryTab, updateCityCompareTab } from "./tabs.js";
 
 
 $(document).ready(function () {
@@ -15,5 +15,5 @@ $(document).ready(function () {
     searchButtonLive();
     updateForecastTab();
     updateHistoryTab();
-    
+    updateCityCompareTab();
 });
