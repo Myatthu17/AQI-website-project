@@ -163,6 +163,8 @@ function addOneDay(date) {
 
 function aggregateToDailyData(hourlyData) {
     const dailyData = {};
+    let overallMin = Infinity; 
+    let overallMax = -Infinity; 
     
     // Loop through hourly data and aggregate by day
     hourlyData.forEach(entry => {
@@ -178,8 +180,13 @@ function aggregateToDailyData(hourlyData) {
             dailyData[day] = { sum: 0, count: 0 };
         }
         
-        dailyData[day].sum += entry.main.aqi; // Add AQI to the sum for this day
+        const aqi = entry.main.aqi;
+        dailyData[day].sum += aqi; // Add AQI to the sum for this day
         dailyData[day].count += 1; // Increment count for this day
+
+        // Update overall min and max values
+        if (aqi < overallMin) overallMin = aqi;
+        if (aqi > overallMax) overallMax = aqi;
     });
 
     // Convert daily data into a format for the chart (average AQI for each day)
@@ -188,7 +195,11 @@ function aggregateToDailyData(hourlyData) {
         return { date: day, aqi: avgAqi };
     });
 
-    return dailyChartData;
+    return {
+        dailyChartData: dailyChartData,
+        overallMin: overallMin,
+        overallMax: overallMax
+    };
 }
 
 export{getAQIClass, setupLocationDropdowns, aggregateToDailyData};

@@ -279,8 +279,8 @@ function updatePollutantConcentrationForecastChart(owData, interval) {
 }
 
 function updateAreaHistoryChart(dailyData) {
-    const labels = dailyData.map(item => item.date);
-    const aqiData = dailyData.map(item => item.aqi);
+    const labels = dailyData.dailyChartData.map(item => item.date);
+    const aqiData = dailyData.dailyChartData.map(item => item.aqi);
 
     if(areaHistoryChart) {
         areaHistoryChart.data.datasets[0].data = aqiData;
