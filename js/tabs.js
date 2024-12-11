@@ -162,29 +162,55 @@ function updateForecastTab() {
 
 // For history tab
 function updateHistoryTab() {
-    let owData;
+    let owData, startUnixTime, endUnixTime;
+
+
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    // Initialize Flatpickr with range mode
+    $("#date-range").flatpickr({
+        mode: "range",           // Enables date range selection
+        dateFormat: "Y-m-d",     // Sets the date format
+        minDate: "2015-01-01",   // Minimum selectable date
+        maxDate: formattedToday,   // Maximum selectable date
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) {
+                startUnixTime = Math.floor(selectedDates[0].getTime() / 1000);
+                endUnixTime = Math.floor(selectedDates[1].getTime() / 1000);
+            } else if (selectedDates.length === 1) {
+                startUnixTime = Math.floor(selectedDates[0].getTime() / 1000);
+                endUnixTime = startUnixTime;
+            }
+        }
+    });
 
     $('#search-history').on('click', async function() {
         let selectedElement;
 
         // Determine the selected element
-        if ($('#city-select-forecast').prop('selectedIndex') > 0) {
+        if ($('#city-select-history').prop('selectedIndex') > 0) {
             // If a city is selected
-            selectedElement = $('#city-select-forecast').find(':selected');
+            selectedElement = $('#city-select-history').find(':selected');
         } else {
             // Fallback to state if no city is selected
-            selectedElement = $('#state-select-forecast').find(':selected');
+            selectedElement = $('#state-select-history').find(':selected');
         }
 
         // Retrieve lat and lon from the selected element
         const lat = selectedElement.data('lat');
-        const lon = selectedElement.data('lon');
+        let lon = selectedElement.data('lon');
+        let date = `&start=${startUnixTime}&end=${endUnixTime}`;
 
         if (!lat || !lon) {
             alert("Latitude and longitude not available for the selected location.");
             return;
         }
+
+        lon+=date;
+
+        owData = await fetchOpenWeatherAQIData(lat, lon, "air_pollution/history");
+        console.log(owData);
     })
 }
 
-export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab};
+export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab, updateHistoryTab};
