@@ -20,10 +20,10 @@ function setupTabs() {
         const targetId = $(this).data('target');
         $(targetId).removeClass('d-none');
 
-        // Call updateHomeTab if Home tab is clicked and more than 15 minutes have passed
+        // Call updateHomeTab if Home tab is clicked and more than 20 minutes have passed
         if (targetId === '#home-content') {
             const currentTime = new Date().getTime();
-            if ((currentTime - lastHomeTabUpdate) > 1000 * 60 * 10) {
+            if ((currentTime - lastHomeTabUpdate) > 1000 * 60 * 20) {
                 updateHomeTab();
                 lastHomeTabUpdate = currentTime; // Update the last update time
             }
