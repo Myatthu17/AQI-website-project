@@ -247,6 +247,11 @@
                             <h3 class="text-white-50 h5">Pollutant Concentrations Over Time (µg/m³)</h3>
                             <div class="card mb-3">
                                 <div class="card-body">
+                                    <select id="hour-interval-select-forecast">
+                                        <option value= 1 selected>1-hour interval</option>
+                                        <option value= 3>3-hour interval</option>
+                                        <option value= 6>6-hour interval</option>
+                                    </select>
                                     <canvas id="pollutantConcentrationForecastChart"></canvas>
                                 </div>
                             </div>
