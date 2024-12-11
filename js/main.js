@@ -9,7 +9,6 @@ $(document).ready(function () {
     setupLocationDropdowns('live');
     setupLocationDropdowns('history');
     setupLocationDropdowns('forecast');
-    setupLocationDropdowns('compare-weather');
     setupLocationDropdowns('compare-city1');
     setupLocationDropdowns('compare-city2');
     searchButtonLive();
