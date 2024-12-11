@@ -1,6 +1,6 @@
-import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart } from "./chart.js";
+import { updateSummaryPollutantChart, updatepm10LineChart, updatePollutantLiveChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart, updateAreaHistoryChart } from "./chart.js";
 import { fetchWAQIData, fetchOpenWeatherAQIData, fetchWAQIDataLatLon } from "./api.js";
-import { getAQIClass } from "./helper.js";
+import { aggregateToDailyData, getAQIClass } from "./helper.js";
 
 // Handle Tab switching
 let lastHomeTabUpdate = new Date().getTime();
@@ -209,7 +209,8 @@ function updateHistoryTab() {
         lon+=date;
 
         owData = await fetchOpenWeatherAQIData(lat, lon, "air_pollution/history");
-        console.log(owData);
+        const dailyData = aggregateToDailyData(owData.list);
+        updateAreaHistoryChart(dailyData);
     })
 }
 

@@ -5,6 +5,7 @@ let chartInstanceLive = null;
 let pm10Chart = null;
 let chartInstanceHistoryPollutant = null;
 let pollutantForecastChart = null;
+let areaHistoryChart = null;
 
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
@@ -277,4 +278,60 @@ function updatePollutantConcentrationForecastChart(owData, interval) {
     }
 }
 
-export{updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
+function updateAreaHistoryChart(dailyData) {
+    const labels = dailyData.map(item => item.date);
+    const aqiData = dailyData.map(item => item.aqi);
+
+    if(areaHistoryChart) {
+        areaHistoryChart.data.datasets[0].data = aqiData;
+        areaHistoryChart.data.labels = labels;
+        areaHistoryChart.update();
+    } else {
+        areaHistoryChart = new Chart($('#areaHistoryChart'), {
+            type: 'line', // Use 'line' type for the area chart
+    data: {
+        labels: labels, // X-axis labels (dates)
+        datasets: [{
+            label: 'Daily AQI',
+            data: aqiData, // Y-axis data (AQI values)
+            fill: true, // Fill the area under the line
+            backgroundColor: 'rgba(75, 192, 192, 0.2)', // Light fill color
+            borderColor: 'rgba(75, 192, 192, 1)', // Line color
+            borderWidth: 1,
+            tension: 0.4, // Smooth the line
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top', // Position of the legend
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return `AQI: ${tooltipItem.raw.toFixed(2)}`; // Format the tooltip value
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Date' // Title for the X-axis
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'AQI' // Title for the Y-axis
+                },
+            }
+        }
+    }
+        });
+    }
+}
+
+export{updateAreaHistoryChart, updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
