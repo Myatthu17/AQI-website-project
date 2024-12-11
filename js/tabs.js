@@ -160,4 +160,31 @@ function updateForecastTab() {
     });
 }
 
+// For history tab
+function updateHistoryTab() {
+    let owData;
+
+    $('#search-history').on('click', async function() {
+        let selectedElement;
+
+        // Determine the selected element
+        if ($('#city-select-forecast').prop('selectedIndex') > 0) {
+            // If a city is selected
+            selectedElement = $('#city-select-forecast').find(':selected');
+        } else {
+            // Fallback to state if no city is selected
+            selectedElement = $('#state-select-forecast').find(':selected');
+        }
+
+        // Retrieve lat and lon from the selected element
+        const lat = selectedElement.data('lat');
+        const lon = selectedElement.data('lon');
+
+        if (!lat || !lon) {
+            alert("Latitude and longitude not available for the selected location.");
+            return;
+        }
+    })
+}
+
 export {setupTabs, updateHomeTab, searchButtonLive, updateForecastTab};
