@@ -154,4 +154,52 @@ async function setupLocationDropdowns(tabName) {
     fetchCountryData();
 }
 
-export{getAQIClass, setupLocationDropdowns};
+// Function to add one day to a date
+function addOneDay(date) {
+    const newDate = new Date(date); // Copy the original date
+    newDate.setUTCDate(newDate.getUTCDate() + 1); // Add one day in UTC
+    return newDate;
+}
+
+function aggregateToDailyData(hourlyData) {
+    const dailyData = {};
+    let overallMin = Infinity; 
+    let overallMax = -Infinity; 
+    
+    // Loop through hourly data and aggregate by day
+    hourlyData.forEach(entry => {
+        const date = new Date(entry.dt * 1000); // Convert UNIX timestamp to JS Date object
+        
+        // Add one day to the current date
+        const nextDay = addOneDay(date);
+
+        // Get the new date in YYYY-MM-DD format after adding one day
+        const day = nextDay.toISOString().split('T')[0];
+
+        if (!dailyData[day]) {
+            dailyData[day] = { sum: 0, count: 0 };
+        }
+        
+        const aqi = entry.main.aqi;
+        dailyData[day].sum += aqi; // Add AQI to the sum for this day
+        dailyData[day].count += 1; // Increment count for this day
+
+        // Update overall min and max values
+        if (aqi < overallMin) overallMin = aqi;
+        if (aqi > overallMax) overallMax = aqi;
+    });
+
+    // Convert daily data into a format for the chart (average AQI for each day)
+    const dailyChartData = Object.keys(dailyData).map(day => {
+        const avgAqi = dailyData[day].sum / dailyData[day].count;
+        return { date: day, aqi: avgAqi };
+    });
+
+    return {
+        dailyChartData: dailyChartData,
+        overallMin: overallMin,
+        overallMax: overallMax
+    };
+}
+
+export{getAQIClass, setupLocationDropdowns, aggregateToDailyData};
