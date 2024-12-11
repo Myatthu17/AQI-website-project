@@ -13,6 +13,8 @@ This website provides real-time air quality index (AQI) data along with historic
 - **Real-Time AQI Data**: Access live AQI data from various locations using the WAQI API.
 - **Historical Data Visualization**: View past air quality data to observe trends.
 - **AQI vs. Temperature/Humidity Analysis**: Compare AQI values with environmental factors such as temperature and humidity.
+- **AQI Forecast**: View forecasted AQI data for different pollutants.
+- **City Compare**: Compare AQI data for two cities at the same time.
 - **Country and City Dropdowns**: Select specific locations to view air quality data.
 - **User-Friendly Interface**: An intuitive layout and navigation make it easy for users to monitor air quality data.
 - **Responsive Design**: The website is designed to be fully responsive.
@@ -25,9 +27,10 @@ This website provides real-time air quality index (AQI) data along with historic
 - **jQuery**: A JavaScript library for simplifying DOM manipulation and event handling.
 - **Bootstrap**: A front-end framework for responsive web design and components.
 - **FontAwesome**: A library for scalable vector icons used for enhanced UI elements.
+- **Flatpickr**: A lightweight and powerful date picker library used for selecting date ranges.
 
 ## Running the Application
-1. **Access the Website**: Open your web browser and navigate to the hosted website URL, or run the local server and open `http://localhost:3000` if running locally.
+1. **Access the Website**: Open your web browser and navigate to the hosted website URL https://myatthu17.github.io/AQI-website-project/, or run the local server and open `http://localhost:3000` if running locally.
 2. **Select Location**: Use the dropdown menus to choose a country and city to view specific air quality data.
 3. **View Charts**: Navigate to the `AQI vs Temperature or Humidity` tab to compare AQI data with environmental conditions.
 
