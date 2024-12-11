@@ -202,4 +202,18 @@ function aggregateToDailyData(hourlyData) {
     };
 }
 
-export{getAQIClass, setupLocationDropdowns, aggregateToDailyData};
+// Extract AQI and components data for each city
+const getComponentsAndAQI = (data) => {
+    const components = data.list[0].components;
+    return {
+        aqi: data.list[0].main.aqi, // AQI value
+        pm10: components.pm10,
+        pm2_5: components.pm2_5,
+        no2: components.no2,
+        o3: components.o3,
+        so2: components.so2
+    };
+};
+
+
+export{getAQIClass, setupLocationDropdowns, aggregateToDailyData, getComponentsAndAQI};

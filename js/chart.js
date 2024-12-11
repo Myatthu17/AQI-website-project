@@ -6,6 +6,7 @@ let pm10Chart = null;
 let chartInstanceHistoryPollutant = null;
 let pollutantForecastChart = null;
 let areaHistoryChart = null;
+let radarCitiesChart = null;
 
 function updateSummaryPollutantChart(components) {
     let data = Object.values(components).map(p => p.v);
@@ -334,4 +335,48 @@ function updateAreaHistoryChart(dailyData) {
     }
 }
 
-export{updateAreaHistoryChart, updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
+function updateRadarCitiesChart(city1Data, city2Data, cityName1, cityName2) {
+
+    if(radarCitiesChart) {
+        radarCitiesChart.data.datasets[0].label = cityName1;
+        radarCitiesChart.data.datasets[1].label = cityName2;
+        radarCitiesChart.data.datasets[0].data = [city1Data.pm10, city1Data.pm2_5, city1Data.no2, city1Data.o3, city1Data.so2];
+        radarCitiesChart.data.datasets[1].data = [city2Data.pm10, city2Data.pm2_5, city2Data.no2, city2Data.o3, city2Data.so2];
+        radarCitiesChart.update();
+    } else {
+        radarCitiesChart = new Chart($('#radarCitiesChart'), {
+            type: 'radar',
+            data: {
+                labels: ['PM10', 'PM2.5', 'NO2', 'O3', 'SO2'], // AQI and components including CO
+                datasets: [
+                    {
+                        label: cityName1,
+                        data: [city1Data.pm10, city1Data.pm2_5, city1Data.no2, city1Data.o3, city1Data.so2],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: cityName2,
+                        data: [city2Data.pm10, city2Data.pm2_5, city2Data.no2, city2Data.o3, city2Data.so2],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scale: {
+                    ticks: {
+                        beginAtZero: true,
+                        max: 200  // Adjust this based on your AQI and component values
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        })
+    }
+}
+
+export{updateRadarCitiesChart, updateAreaHistoryChart, updateSummaryPollutantChart, updatePollutantLiveChart, updatepm10LineChart, updatePollutantTrendsChart, updatePollutantConcentrationForecastChart};
